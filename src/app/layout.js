@@ -1,4 +1,5 @@
 import "./globals.css";
+import { AuthProvider } from "./AuthProvider";
 
 export const metadata = {
   title: "My Bookshelf",
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#121212" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
       </head>
-      <body style={{ margin: 0, padding: 0 }}>{children}</body>
+      <body style={{ margin: 0, padding: 0 }}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

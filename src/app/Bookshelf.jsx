@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
-
+import { AuthProvider, useAuth } from "./AuthProvider";
+import { useShelfData } from "./useShelfData";
 function useDebounce(val, ms) {
   const [d, setD] = useState(val);
   useEffect(() => { const t = setTimeout(() => setD(val), ms); return () => clearTimeout(t); }, [val, ms]);
@@ -202,8 +203,11 @@ const THEMES = {
 const ThemeCtx = createContext(THEMES.classic);
 function useTheme() { return useContext(ThemeCtx); }
 
+const ScaleCtx = createContext(1);
+function useScale() { return useContext(ScaleCtx); }
+
 /* ── Profile Menu + Appearance Sheet ── */
-function ProfileMenu({ theme, setThemeId, onClose, isDesktop, screenW, contentMax }) {
+function ProfileMenu({ theme, setThemeId, onClose, isDesktop, screenW, contentMax, user, signIn, signOut, isCloud }) {
   const [showAppearance, setShowAppearance] = useState(false);
   const T = theme;
 
@@ -268,16 +272,22 @@ function ProfileMenu({ theme, setThemeId, onClose, isDesktop, screenW, contentMa
       }}>
         {[
           { icon:"palette", label:"Appearance", action:() => setShowAppearance(true) },
+          ...(user ? [
+            { icon:"cloud_done", label: user.email ? `Signed in as ${user.email.split("@")[0]}` : "Synced to cloud", action:() => {}, disabled: true },
+            { icon:"logout", label:"Sign out", action: signOut },
+          ] : signIn ? [
+            { icon:"login", label:"Sign in with Google", action: signIn },
+          ] : []),
         ].map(item => (
-          <button key={item.label} onClick={item.action} style={{
+          <button key={item.label} onClick={item.disabled ? undefined : item.action} style={{
             display:"flex", alignItems:"center", gap:10, padding:"12px 14px", width:"100%",
-            background:"none", border:"none", cursor:"pointer", borderRadius:T.cardRadius - 2,
-            transition:"background .12s",
+            background:"none", border:"none", cursor: item.disabled ? "default" : "pointer", borderRadius:T.cardRadius - 2,
+            transition:"background .12s", opacity: item.disabled ? .6 : 1,
           }}
-            onMouseEnter={e => e.currentTarget.style.background = T.cardBg}
+            onMouseEnter={e => { if(!item.disabled) e.currentTarget.style.background = T.cardBg }}
             onMouseLeave={e => e.currentTarget.style.background = "none"}
           >
-            <span className="m3-icon" style={{ fontSize:20, color:T.textMuted }}>{item.icon}</span>
+            <span className="m3-icon" style={{ fontSize:20, color: item.disabled ? T.accent : T.textMuted }}>{item.icon}</span>
             <span style={{ fontSize:14, color:T.text, fontFamily:T.bodyFont }}>{item.label}</span>
           </button>
         ))}
@@ -820,43 +830,45 @@ function Stars({ rating = 0, onChange, size = 20, interactive = true }) {
 
 /* ── Book Spine ── */
 function BookSpine({ book, index, onClick }) {
+  const scale = useScale();
   const h = hash(book.title + (book.author || ""));
   const color = SPINE_COLORS[h % SPINE_COLORS.length];
   const texture = SPINE_TEXTURES[h % SPINE_TEXTURES.length];
-  const w = spineWidth(book.pages, book.title);
+  const w = Math.round(spineWidth(book.pages, book.title) * scale);
   const isGold = h % 3 === 0;
   const hasBand = h % 4 < 2;
   const bandY = h % 2 === 0 ? 8 + (h % 12) : 78 + (h % 12);
   const hasDoubleBand = h % 5 === 0;
   const sc = book.status === "reading" ? STATUS.reading.color : book.status === "finished" ? STATUS.finished.color : null;
+  const hoverY = Math.round(10 * scale);
 
   return (
     <div onClick={() => onClick(book)} style={{
-      width: w, height: "100%", background: color, borderRadius: "2px 4px 4px 2px",
+      width: w, height: "100%", background: color, borderRadius: `${2*scale}px ${4*scale}px ${4*scale}px ${2*scale}px`,
       position: "relative", cursor: "pointer", flexShrink: 0,
       boxShadow: "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 0 3px rgba(0,0,0,.2)",
       transition: "transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s", overflow: "hidden",
       animation: `spineUp .4s cubic-bezier(.34,1.56,.64,1) ${index * .04}s both`,
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-10px)"; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
+      onMouseEnter={e => { e.currentTarget.style.transform = `translateY(-${hoverY}px)`; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
-      onTouchStart={e => { e.currentTarget.style.transform = "translateY(-10px)"; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
+      onTouchStart={e => { e.currentTarget.style.transform = `translateY(-${hoverY}px)`; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
       onTouchEnd={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
       onTouchCancel={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
     >
       <div style={{ position:"absolute", inset:0, background:texture, pointerEvents:"none" }}/>
-      {hasBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY}%`, height:2, background: isGold ? "linear-gradient(90deg, transparent, #c9a84c, #f0d78c, #c9a84c, transparent)" : "rgba(255,255,255,.1)" }}/>}
-      {hasDoubleBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY+4}%`, height:1, background: isGold ? "linear-gradient(90deg, transparent, #c9a84c88, transparent)" : "rgba(255,255,255,.06)" }}/>}
+      {hasBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY}%`, height:Math.max(2, 2*scale), background: isGold ? "linear-gradient(90deg, transparent, #c9a84c, #f0d78c, #c9a84c, transparent)" : "rgba(255,255,255,.1)" }}/>}
+      {hasDoubleBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY+4}%`, height:Math.max(1, 1*scale), background: isGold ? "linear-gradient(90deg, transparent, #c9a84c88, transparent)" : "rgba(255,255,255,.06)" }}/>}
       <div style={{
         position:"absolute", top:"50%", left:"50%",
         transform:"translate(-50%,-50%) rotate(-90deg)",
-        whiteSpace:"nowrap", fontSize: Math.min(10, w * .26),
+        whiteSpace:"nowrap", fontSize: Math.min(10*scale, w * .26),
         fontFamily:"'Playfair Display', Georgia, serif", fontWeight: 500,
         color: isGold ? "#e8d5a3" : "rgba(255,255,255,.75)",
         letterSpacing:".5px", textShadow:"0 1px 2px rgba(0,0,0,.5)",
-        maxWidth: 140, overflow:"hidden", textOverflow:"ellipsis",
+        maxWidth: Math.round(140*scale), overflow:"hidden", textOverflow:"ellipsis",
       }}>{book.title}</div>
-      {sc && <div style={{ position:"absolute", top:5, left:"50%", transform:"translateX(-50%)", width:5, height:5, borderRadius:"50%", background:sc, boxShadow:`0 0 4px ${sc}` }}/>}
+      {sc && <div style={{ position:"absolute", top:Math.round(5*scale), left:"50%", transform:"translateX(-50%)", width:Math.round(5*scale), height:Math.round(5*scale), borderRadius:"50%", background:sc, boxShadow:`0 0 4px ${sc}` }}/>}
       <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:"linear-gradient(180deg, rgba(255,255,255,.1), transparent)" }}/>
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:4, background:"linear-gradient(0deg, rgba(0,0,0,.2), transparent)" }}/>
     </div>
@@ -866,12 +878,15 @@ function BookSpine({ book, index, onClick }) {
 /* ── Shelf ── */
 function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves }) {
   const T = useTheme();
+  const scale = useScale();
+  const shelfH = Math.round(155 * scale);
+  const plankH = Math.round(16 * scale);
   return (
     <div style={{ position:"relative" }}>
       {/* Back panel — visible behind books */}
       <div style={{
-        height: 155, padding: "8px 8px 0",
-        display: "flex", alignItems: "flex-end", gap: 3,
+        height: shelfH, padding: `${Math.round(8*scale)}px ${Math.round(10*scale)}px 0`,
+        display: "flex", alignItems: "flex-end", gap: Math.round(3 * scale),
         background: T.bookcaseBg,
         cursor: books.length === 0 ? "pointer" : "default",
         position: "relative",
@@ -884,7 +899,7 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves })
       </div>
       {/* Shelf plank — thick wooden ledge */}
       <div style={{
-        height: 16, position:"relative",
+        height: plankH, position:"relative",
         background: T.shelfFront,
         boxShadow: T.shelfShadow,
       }}>
@@ -896,8 +911,6 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves })
         <div style={{ position:"absolute", top:0, left:0, right:0, height:1,
           background:"linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06))" }}/>
       </div>
-      {/* Shadow below shelf */}
-      <div style={{ height: 8, background: "linear-gradient(180deg, rgba(0,0,0,.15), transparent)" }}/>
     </div>
   );
 }
@@ -905,38 +918,32 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves })
 /* ── Bookcase wrapper — adds wood side panels ── */
 function Bookcase({ children }) {
   const T = useTheme();
+  const scale = useScale();
+  const sideW = Math.round(8 * scale);
+  const topH = Math.round(6 * scale);
+  const botH = Math.round(8 * scale);
   return (
     <div style={{
       position:"relative",
-      border:`6px solid ${T.wood}`,
-      borderRadius: 6,
-      boxShadow: `inset 2px 0 8px rgba(0,0,0,.3), inset -2px 0 8px rgba(0,0,0,.3), 0 4px 20px rgba(0,0,0,.3)`,
+      borderLeft:`${sideW}px solid ${T.wood}`,
+      borderRight:`${sideW}px solid ${T.wood}`,
+      borderTop:`${topH}px solid ${T.wood}`,
+      borderBottom:`${botH}px solid ${T.wood}`,
+      borderRadius: Math.round(4 * scale),
+      boxShadow: `0 4px 20px rgba(0,0,0,.3)`,
       overflow:"hidden",
     }}>
-      {/* Left side panel wood grain */}
-      <div style={{ position:"absolute", left:-1, top:0, bottom:0, width:6, zIndex:2,
-        background:`linear-gradient(90deg, ${T.woodDark}, ${T.wood}, ${T.woodLight} 70%, ${T.wood})`,
-        boxShadow:"2px 0 6px rgba(0,0,0,.25)" }}>
+      <div style={{ position:"absolute", left:-sideW, top:0, bottom:0, width:sideW, zIndex:2, pointerEvents:"none",
+        background:`linear-gradient(90deg, ${T.woodDark}, ${T.woodLight} 50%, ${T.wood})` }}>
         <div style={{ position:"absolute", inset:0, opacity:.06,
           background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
       </div>
-      {/* Right side panel wood grain */}
-      <div style={{ position:"absolute", right:-1, top:0, bottom:0, width:6, zIndex:2,
-        background:`linear-gradient(270deg, ${T.woodDark}, ${T.wood}, ${T.woodLight} 70%, ${T.wood})`,
-        boxShadow:"-2px 0 6px rgba(0,0,0,.25)" }}>
+      <div style={{ position:"absolute", right:-sideW, top:0, bottom:0, width:sideW, zIndex:2, pointerEvents:"none",
+        background:`linear-gradient(270deg, ${T.woodDark}, ${T.woodLight} 50%, ${T.wood})` }}>
         <div style={{ position:"absolute", inset:0, opacity:.06,
           background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
       </div>
-      {/* Top cap */}
-      <div style={{ height:8, background:`linear-gradient(180deg, ${T.woodDark}, ${T.wood})`, position:"relative", zIndex:2 }}>
-        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:"rgba(0,0,0,.2)" }}/>
-      </div>
-      {/* Shelves */}
-      <div>{children}</div>
-      {/* Bottom base */}
-      <div style={{ height:10, background:`linear-gradient(0deg, ${T.woodDark}, ${T.wood})`, position:"relative", zIndex:2 }}>
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"rgba(255,255,255,.05)" }}/>
-      </div>
+      {children}
     </div>
   );
 }
@@ -1111,12 +1118,23 @@ function Detail({ book, onClose, onRemove, onUpdate, years, fetchCover }) {
 
         {book.addedAt && <p style={{ margin:"12px 0 0", fontSize:11, color:T.textFaint, textAlign:"center" }}>Added {new Date(book.addedAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</p>}
 
-        <button onClick={() => { onRemove(book.id); onClose(); }} style={{
-          display:"block", width:"100%", marginTop:12, padding:"11px",
-          background:T.dangerBg, border:`1px solid ${T.dangerBorder}`,
-          borderRadius:T.cardRadius, color:T.dangerText, fontSize:13, cursor:"pointer",
-          fontFamily:T.bodyFont,
-        }}>Remove from shelf</button>
+        <div style={{ display:"flex", gap:8, marginTop:14, alignItems:"center" }}>
+          <button onClick={onClose} style={{
+            flex:1, padding:"11px",
+            background:T.accentSoft, border:`1px solid ${T.accentBorder}`,
+            borderRadius:T.cardRadius, color:T.accentText, fontSize:13, cursor:"pointer",
+            fontFamily:T.bodyFont, fontWeight:600,
+          }}>Done</button>
+          <button onClick={() => { if(confirm("Remove this book from your shelf?")){ onRemove(book.id); onClose(); }}} title="Remove from shelf" style={{
+            width:40, height:40, display:"flex", alignItems:"center", justifyContent:"center",
+            background:T.dangerBg, border:`1px solid ${T.dangerBorder}`,
+            borderRadius:T.cardRadius, color:T.dangerText, fontSize:15, cursor:"pointer",
+            flexShrink:0, transition:"opacity .2s", opacity:.7,
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity="1"}
+          onMouseLeave={e => e.currentTarget.style.opacity=".7"}
+          >🗑</button>
+        </div>
       </div>
     </div>
   );
@@ -1179,11 +1197,13 @@ function Stats({ books, label }) {
    Main App
    ═══════════════════════════════════════════ */
 export default function App() {
-  const [books, setBooks] = useState([]);
-  const [loaded, setLoaded] = useState(false);
-  const [themeId, setThemeId] = useState("classic");
+  const {
+    books, setBooks, addBook: shelfAddBook, removeBook, updateBook,
+    themeId, setThemeId: changeTheme, shelfName, setShelfName,
+    loading: dataLoading, user, signIn, signOut, isCloud,
+  } = useShelfData();
+  const loaded = !dataLoading;
   const [showProfile, setShowProfile] = useState(false);
-  const [shelfName, setShelfName] = useState("My Shelf");
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
   const T = THEMES[themeId] || THEMES.classic;
@@ -1191,43 +1211,8 @@ export default function App() {
   const isDesktop = screenW >= 900;
   const isTablet = screenW >= 600 && screenW < 900;
   const isMobile = screenW < 600;
-  const contentMax = isDesktop ? 1200 : isTablet ? 720 : 480;
-
-  // Load theme preference
-  useEffect(() => {
-    (async () => {
-      try { const v = localStorage.getItem("shelf-theme"); if (v) setThemeId(v); } catch {}
-      try { const v = localStorage.getItem("shelf-name"); if (v) setShelfName(v); } catch {}
-    })();
-  }, []);
-  const changeTheme = useCallback(id => {
-    setThemeId(id);
-    try { localStorage.setItem("shelf-theme", id); } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      const r = localStorage.getItem("shelf-v5");
-      if (r) {
-          const loaded2 = JSON.parse(r.value);
-          // Backfill shelfYear for legacy books
-          const curYr = new Date().getFullYear();
-          setBooks(loaded2.map(b => b.shelfYear ? b : { ...b, shelfYear: curYr }));
-        } else {
-          // Try migrating from v4
-          const old = localStorage.getItem("shelf-v4");
-          if (old) {
-            const curYr = new Date().getFullYear();
-            setBooks(JSON.parse(old).map(b => ({ ...b, shelfYear: b.shelfYear || curYr })));
-          }
-        }
-    } catch {}
-    setLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (!loaded) return;
-    try { localStorage.setItem("shelf-v5", JSON.stringify(books)); } catch {}
-  }, [books, loaded]);
+  const contentMax = isDesktop ? 1400 : isTablet ? 720 : 480;
+  const shelfScale = isDesktop ? 1.8 : isTablet ? 1.35 : 1;
 
   const [query, setQuery] = useState("");
   const [sugs, setSugs] = useState([]);
@@ -1301,12 +1286,10 @@ export default function App() {
   const allSugs = [...sugs, ...apiSugs];
 
   const addBook = useCallback(item => {
-    setBooks(p => [{ ...item, id: Date.now()+Math.random(), addedAt: new Date().toISOString(), status: addStatus, rating:0, notes:"", shelfYear: addYear }, ...p]);
+    shelfAddBook({ ...item, status: addStatus, shelfYear: addYear });
     setShelfYear(addYear);
     setQuery(""); setSugs([]); setShowSearch(false);
-  }, [addYear, addStatus]);
-  const removeBook = useCallback(id => setBooks(p => p.filter(b => b.id !== id)), []);
-  const updateBook = useCallback((id, u) => setBooks(p => p.map(b => b.id === id ? { ...b, ...u } : b)), []);
+  }, [addYear, addStatus, shelfAddBook]);
 
   // Lazy cover fetcher — searches Open Library for books without covers
   // (works when deployed to Vercel/native, blocked in artifact sandbox)
@@ -1344,7 +1327,7 @@ export default function App() {
   const addManual = useCallback(() => { if (query.trim()) addBook({ title:query.trim(), author:"", cover:null, year:null, pages:null }); }, [query, addBook]);
 
   const fBooks = filter === "all" ? yearBooks : yearBooks.filter(b => b.status === filter);
-  const perShelf = isDesktop ? 24 : isTablet ? 14 : 8;
+  const perShelf = isDesktop ? 14 : isTablet ? 9 : 8;
   const minShelves = isDesktop ? 2 : 3;
   const shelves = [];
   for (let i = 0; i < Math.max(minShelves, Math.ceil(fBooks.length / perShelf)); i++)
@@ -1359,6 +1342,7 @@ export default function App() {
   const yearPgs = yearBooks.reduce((s, b) => s + (b.pages || 0), 0);
 
   return (
+    <ScaleCtx.Provider value={shelfScale}>
     <ThemeCtx.Provider value={T}>
     <div style={{
       minHeight:"100vh", maxWidth:contentMax, margin:"0 auto", position:"relative",
@@ -1367,9 +1351,9 @@ export default function App() {
       display:"flex", flexDirection:"column",
       "--shelf-bg": T.bodyBg,
     }}>
-      <style>{`body { background:${T.bodyBg}; }`}</style>
+      <style suppressHydrationWarning>{`body { background:${T.bodyBg}; }`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet"/>
-      <style>{`
+      <style suppressHydrationWarning>{`
         @keyframes spineUp { from { transform: translateY(20px) scaleY(.9); opacity:0; } to { transform: translateY(0) scaleY(1); opacity:1; } }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -1391,7 +1375,6 @@ export default function App() {
               onBlur={e => {
                 const v = e.target.value.trim() || "My Shelf";
                 setShelfName(v); setEditingName(false);
-                try { localStorage.setItem("shelf-name", v); } catch {}
               }}
               onKeyDown={e => { if (e.key === "Enter") e.target.blur(); if (e.key === "Escape") { setEditingName(false); } }}
               style={{
@@ -1435,14 +1418,19 @@ export default function App() {
         )}
           {/* Profile avatar */}
           <button onClick={() => setShowProfile(true)} style={{
-            width:34, height:34, borderRadius:17, border:"none", cursor:"pointer",
-            background:T.avatarBg, display:"flex", alignItems:"center", justifyContent:"center",
-            transition:"transform .15s", flexShrink:0,
+            width:34, height:34, borderRadius:17, border: isCloud ? `2px solid ${T.accent}` : "none", cursor:"pointer",
+            background: user?.user_metadata?.avatar_url ? "transparent" : T.avatarBg,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            transition:"transform .15s", flexShrink:0, overflow:"hidden",
           }}
             onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}
             onMouseLeave={e => e.currentTarget.style.transform = ""}
           >
-            <span className="m3-icon" style={{ fontSize:18, color:T.avatarText }}>person</span>
+            {user?.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt="" style={{ width:34, height:34, borderRadius:17, objectFit:"cover" }}/>
+            ) : (
+              <span className="m3-icon" style={{ fontSize:18, color:T.avatarText }}>person</span>
+            )}
           </button>
         </div>
       </div>
@@ -1691,8 +1679,9 @@ export default function App() {
       <Detail book={selected} onClose={() => setSelected(null)} onRemove={removeBook} onUpdate={updateBook} years={years} fetchCover={fetchCover}/>
 
       {/* Profile menu */}
-      {showProfile && <ProfileMenu theme={T} setThemeId={changeTheme} onClose={() => setShowProfile(false)} isDesktop={isDesktop} screenW={screenW} contentMax={contentMax}/>}
+      {showProfile && <ProfileMenu theme={T} setThemeId={changeTheme} onClose={() => setShowProfile(false)} isDesktop={isDesktop} screenW={screenW} contentMax={contentMax} user={user} signIn={signIn} signOut={signOut} isCloud={isCloud}/>}
     </div>
     </ThemeCtx.Provider>
+    </ScaleCtx.Provider>
   );
 }
