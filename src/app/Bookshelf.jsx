@@ -38,6 +38,7 @@ const THEMES = {
     shelfFront: "linear-gradient(180deg, #5a4632 0%, #4a3828 40%, #3d2e1f 100%)",
     shelfShadow: "0 4px 12px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08)",
     shelfBg: "linear-gradient(180deg, rgba(30,25,20,.25) 0%, rgba(40,32,24,.08) 100%)",
+    wood: "#5a4230", woodDark: "#3d2c1a", woodLight: "#6b5040", bookcaseBg: "rgba(20,16,12,.85)",
     sheetBg: "linear-gradient(180deg, #1e1a16, #151210)",
     overlayBg: "rgba(0,0,0,.7)",
     headingFont: "'Playfair Display', serif",
@@ -72,6 +73,7 @@ const THEMES = {
     shelfFront: "linear-gradient(180deg, #c4a67a 0%, #b89868 40%, #a88c58 100%)",
     shelfShadow: "0 3px 8px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.5)",
     shelfBg: "linear-gradient(180deg, rgba(200,180,150,.08) 0%, rgba(200,180,150,.02) 100%)",
+    wood: "#b89868", woodDark: "#9a7d52", woodLight: "#d4b88a", bookcaseBg: "rgba(245,235,220,.6)",
     sheetBg: "linear-gradient(180deg, #ffffff, #faf8f4)",
     overlayBg: "rgba(0,0,0,.35)",
     headingFont: "'Playfair Display', serif",
@@ -106,6 +108,7 @@ const THEMES = {
     shelfFront: "linear-gradient(180deg, #333 0%, #222 40%, #1a1a1a 100%)",
     shelfShadow: "0 4px 12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06)",
     shelfBg: "linear-gradient(180deg, rgba(255,255,255,.03) 0%, transparent 100%)",
+    wood: "#2a2a2a", woodDark: "#1a1a1a", woodLight: "#3a3a3a", bookcaseBg: "rgba(15,15,15,.9)",
     sheetBg: "linear-gradient(180deg, #151515, #0a0a0a)",
     overlayBg: "rgba(0,0,0,.85)",
     headingFont: "'Space Grotesk', sans-serif",
@@ -140,6 +143,7 @@ const THEMES = {
     shelfFront: "linear-gradient(180deg, #3a2560 0%, #2a1848 40%, #1e1235 100%)",
     shelfShadow: "0 4px 12px rgba(100,20,180,.25), inset 0 1px 0 rgba(224,64,251,.1)",
     shelfBg: "linear-gradient(180deg, rgba(224,64,251,.04) 0%, transparent 100%)",
+    wood: "#2a1848", woodDark: "#1a1030", woodLight: "#3a2560", bookcaseBg: "rgba(15,10,26,.85)",
     sheetBg: "linear-gradient(180deg, #1a1230, #0f0a1a)",
     overlayBg: "rgba(8,4,18,.85)",
     headingFont: "'Space Grotesk', sans-serif",
@@ -174,6 +178,7 @@ const THEMES = {
     shelfFront: "linear-gradient(180deg, #4a5a3a 0%, #3a4a2e 40%, #2e3a22 100%)",
     shelfShadow: "0 4px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(124,179,66,.1)",
     shelfBg: "linear-gradient(180deg, rgba(124,179,66,.04) 0%, transparent 100%)",
+    wood: "#3a4a2e", woodDark: "#2a3620", woodLight: "#4a5a3a", bookcaseBg: "rgba(14,20,16,.85)",
     sheetBg: "linear-gradient(180deg, #182018, #0e1410)",
     overlayBg: "rgba(5,10,5,.8)",
     headingFont: "'Playfair Display', serif",
@@ -859,20 +864,132 @@ function BookSpine({ book, index, onClick }) {
 }
 
 /* ── Shelf ── */
-function Shelf({ books, si, onBookClick, onAdd }) {
+function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves }) {
   const T = useTheme();
   return (
-    <div style={{ marginBottom: 6 }}>
-      <div onClick={books.length === 0 ? onAdd : undefined} style={{
-        height: 155, padding: "10px 16px 0",
+    <div style={{ position:"relative" }}>
+      {/* Back panel — visible behind books */}
+      <div style={{
+        height: 155, padding: "8px 8px 0",
         display: "flex", alignItems: "flex-end", gap: 3,
-        background: T.shelfBg, flexWrap: "nowrap",
+        background: T.bookcaseBg,
         cursor: books.length === 0 ? "pointer" : "default",
-      }}>
+        position: "relative",
+      }} onClick={books.length === 0 ? onAdd : undefined}>
+        {/* Subtle back panel texture */}
+        <div style={{ position:"absolute", inset:0, opacity:.04,
+          background:"repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,.3) 30px, rgba(255,255,255,.3) 31px)",
+          pointerEvents:"none" }}/>
         {books.map((b, i) => <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />)}
       </div>
-      <div style={{ height: 13, background: T.shelfFront, borderRadius: "0 0 3px 3px", boxShadow: T.shelfShadow }}/>
-      <div style={{ height: 7, background: "linear-gradient(180deg, rgba(0,0,0,.12), transparent)", borderRadius:"0 0 6px 6px" }}/>
+      {/* Shelf plank — thick wooden ledge */}
+      <div style={{
+        height: 16, position:"relative",
+        background: T.shelfFront,
+        boxShadow: T.shelfShadow,
+      }}>
+        {/* Wood grain lines */}
+        <div style={{ position:"absolute", inset:0, opacity:.08,
+          background:"repeating-linear-gradient(180deg, transparent, transparent 3px, rgba(255,255,255,.2) 3px, rgba(255,255,255,.2) 4px)",
+          pointerEvents:"none" }}/>
+        {/* Top edge highlight */}
+        <div style={{ position:"absolute", top:0, left:0, right:0, height:1,
+          background:"linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06))" }}/>
+      </div>
+      {/* Shadow below shelf */}
+      <div style={{ height: 8, background: "linear-gradient(180deg, rgba(0,0,0,.15), transparent)" }}/>
+    </div>
+  );
+}
+
+/* ── Bookcase wrapper — adds wood side panels ── */
+function Bookcase({ children }) {
+  const T = useTheme();
+  return (
+    <div style={{
+      position:"relative",
+      border:`6px solid ${T.wood}`,
+      borderRadius: 6,
+      boxShadow: `inset 2px 0 8px rgba(0,0,0,.3), inset -2px 0 8px rgba(0,0,0,.3), 0 4px 20px rgba(0,0,0,.3)`,
+      overflow:"hidden",
+    }}>
+      {/* Left side panel wood grain */}
+      <div style={{ position:"absolute", left:-1, top:0, bottom:0, width:6, zIndex:2,
+        background:`linear-gradient(90deg, ${T.woodDark}, ${T.wood}, ${T.woodLight} 70%, ${T.wood})`,
+        boxShadow:"2px 0 6px rgba(0,0,0,.25)" }}>
+        <div style={{ position:"absolute", inset:0, opacity:.06,
+          background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
+      </div>
+      {/* Right side panel wood grain */}
+      <div style={{ position:"absolute", right:-1, top:0, bottom:0, width:6, zIndex:2,
+        background:`linear-gradient(270deg, ${T.woodDark}, ${T.wood}, ${T.woodLight} 70%, ${T.wood})`,
+        boxShadow:"-2px 0 6px rgba(0,0,0,.25)" }}>
+        <div style={{ position:"absolute", inset:0, opacity:.06,
+          background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
+      </div>
+      {/* Top cap */}
+      <div style={{ height:8, background:`linear-gradient(180deg, ${T.woodDark}, ${T.wood})`, position:"relative", zIndex:2 }}>
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:"rgba(0,0,0,.2)" }}/>
+      </div>
+      {/* Shelves */}
+      <div>{children}</div>
+      {/* Bottom base */}
+      <div style={{ height:10, background:`linear-gradient(0deg, ${T.woodDark}, ${T.wood})`, position:"relative", zIndex:2 }}>
+        <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:"rgba(255,255,255,.05)" }}/>
+      </div>
+    </div>
+  );
+}
+
+/* ── Manual Add Form ── */
+function ManualAdd({ query, onAdd }) {
+  const T = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  const [title, setTitle] = useState(query);
+  const [author, setAuthor] = useState("");
+  const [pages, setPages] = useState("");
+
+  useEffect(() => { setTitle(query); }, [query]);
+
+  const submit = () => {
+    if (!title.trim()) return;
+    onAdd({ title: title.trim(), author: author.trim(), year: null, pages: pages ? parseInt(pages) : null, cover: null });
+    setAuthor(""); setPages("");
+  };
+
+  if (!expanded) return (
+    <div style={{ padding:"8px 16px", borderTop:`1px solid ${T.divider}` }}>
+      <button onClick={() => setExpanded(true)} style={{
+        width:"100%", padding:"12px 16px", background:T.cardBg, border:`1px dashed ${T.cardBorder}`,
+        borderRadius:T.cardRadius, cursor:"pointer", display:"flex", alignItems:"center",
+        gap:10, fontFamily:T.bodyFont, fontSize:13, color:T.textSub,
+      }}>
+        <span style={{ fontSize:18, opacity:.5 }}>✏️</span>
+        <span>Add <strong style={{ color:T.accentText }}>"{query}"</strong> manually</span>
+      </button>
+    </div>
+  );
+
+  return (
+    <div style={{ padding:"12px 16px", borderTop:`1px solid ${T.divider}` }}>
+      <div style={{ background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:16 }}>
+        <div style={{ fontSize:11, color:T.textMuted, marginBottom:10, textTransform:"uppercase", letterSpacing:".5px", fontWeight:600 }}>Add custom book</div>
+        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title"
+          style={{ width:"100%", padding:"10px 12px", marginBottom:8, background:T.inputBg, border:`1px solid ${T.inputBorder}`,
+            borderRadius:T.inputRadius, color:T.text, fontSize:14, fontFamily:T.bodyFont, outline:"none", boxSizing:"border-box" }}/>
+        <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Author (optional)"
+          style={{ width:"100%", padding:"10px 12px", marginBottom:8, background:T.inputBg, border:`1px solid ${T.inputBorder}`,
+            borderRadius:T.inputRadius, color:T.text, fontSize:14, fontFamily:T.bodyFont, outline:"none", boxSizing:"border-box" }}/>
+        <input value={pages} onChange={e => setPages(e.target.value.replace(/\D/g,""))} placeholder="Pages (optional)" type="text" inputMode="numeric"
+          style={{ width:"100%", padding:"10px 12px", marginBottom:12, background:T.inputBg, border:`1px solid ${T.inputBorder}`,
+            borderRadius:T.inputRadius, color:T.text, fontSize:14, fontFamily:T.bodyFont, outline:"none", boxSizing:"border-box" }}/>
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={() => setExpanded(false)} style={{ flex:1, padding:"10px", background:"none", border:`1px solid ${T.cardBorder}`,
+            borderRadius:T.cardRadius, color:T.textMuted, fontSize:13, cursor:"pointer", fontFamily:T.bodyFont }}>Cancel</button>
+          <button onClick={submit} style={{ flex:2, padding:"10px", background:T.accentSoft, border:`1px solid ${T.accentBorder}`,
+            borderRadius:T.cardRadius, color:T.accentText, fontSize:13, cursor:"pointer", fontFamily:T.bodyFont, fontWeight:600 }}>Add to shelf</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1078,8 +1195,10 @@ export default function App() {
 
   // Load theme preference
   useEffect(() => {
-    try { const v = localStorage.getItem("shelf-theme"); if (v) setThemeId(v); } catch {}
-    try { const v = localStorage.getItem("shelf-name"); if (v) setShelfName(v); } catch {}
+    (async () => {
+      try { const v = localStorage.getItem("shelf-theme"); if (v) setThemeId(v); } catch {}
+      try { const v = localStorage.getItem("shelf-name"); if (v) setShelfName(v); } catch {}
+    })();
   }, []);
   const changeTheme = useCallback(id => {
     setThemeId(id);
@@ -1090,16 +1209,18 @@ export default function App() {
     try {
       const r = localStorage.getItem("shelf-v5");
       if (r) {
-        const loaded2 = JSON.parse(r);
-        const curYr = new Date().getFullYear();
-        setBooks(loaded2.map(b => b.shelfYear ? b : { ...b, shelfYear: curYr }));
-      } else {
-        const old = localStorage.getItem("shelf-v4");
-        if (old) {
+          const loaded2 = JSON.parse(r.value);
+          // Backfill shelfYear for legacy books
           const curYr = new Date().getFullYear();
-          setBooks(JSON.parse(old).map(b => ({ ...b, shelfYear: b.shelfYear || curYr })));
+          setBooks(loaded2.map(b => b.shelfYear ? b : { ...b, shelfYear: curYr }));
+        } else {
+          // Try migrating from v4
+          const old = localStorage.getItem("shelf-v4");
+          if (old) {
+            const curYr = new Date().getFullYear();
+            setBooks(JSON.parse(old).map(b => ({ ...b, shelfYear: b.shelfYear || curYr })));
+          }
         }
-      }
     } catch {}
     setLoaded(true);
   }, []);
@@ -1148,33 +1269,30 @@ export default function App() {
     setApiSugs([]); setTriedApi("");
   }, [query]);
 
-  // API fallback: trigger when user clicks "Search online"
+  // Online search via Open Library API
   const searchApi = useCallback(async (q) => {
     if (!q || q.length < 2 || triedApi === q) return;
     setApiLoading(true); setTriedApi(q);
     try {
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001", max_tokens: 800,
-          messages: [{ role: "user", content: `Book search: "${q}"\nReturn JSON array, 6 results max. Fields: title(string), author(string), year(number|null), pages(number|null), isbn(string|null, 13-digit).\nONLY output the JSON array, nothing else.` }],
-        }),
-      });
+      const resp = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=key,title,author_name,first_publish_year,number_of_pages_median,isbn,cover_i`);
       const data = await resp.json();
-      const txt = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
-      const si2 = txt.indexOf("["), ei = txt.lastIndexOf("]");
-      if (si2 !== -1 && ei !== -1) {
-        const arr = JSON.parse(txt.slice(si2, ei + 1));
-        if (Array.isArray(arr)) {
-          const existTitles = new Set(sugs.map(s => s.title.toLowerCase()));
-          const extra = arr.filter(r => !existTitles.has((r.title||"").toLowerCase()))
-            .map((r, i) => ({
-              olKey: `api-${q}-${i}`, title: r.title || "Unknown",
-              author: r.author || "", year: r.year || null, pages: r.pages || null,
-              cover: r.isbn ? `https://covers.openlibrary.org/b/isbn/${r.isbn}-L.jpg` : null,
-            }));
-          setApiSugs(extra);
-        }
+      if (data.docs && Array.isArray(data.docs)) {
+        const existTitles = new Set(sugs.map(s => s.title.toLowerCase()));
+        const extra = data.docs
+          .filter(doc => doc.title && !existTitles.has(doc.title.toLowerCase()))
+          .map((doc, i) => {
+            const isbn = doc.isbn && doc.isbn.length > 0 ? doc.isbn.find(x => x.length === 13) || doc.isbn[0] : null;
+            return {
+              olKey: doc.key || `ol-${q}-${i}`,
+              title: doc.title,
+              author: doc.author_name ? doc.author_name[0] : "",
+              year: doc.first_publish_year || null,
+              pages: doc.number_of_pages_median || null,
+              cover: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
+                : isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg` : null,
+            };
+          });
+        setApiSugs(extra);
       }
     } catch {}
     finally { setApiLoading(false); }
@@ -1358,15 +1476,16 @@ export default function App() {
       {/* Content area — scrolls, with bottom padding for nav bar */}
       <div style={{ flex:1, overflowY:"auto", padding:isDesktop?"16px 24px 100px":isTablet?"14px 16px 140px":"12px 12px 140px", background:T.bg }}>
         {tab==="shelf" && (
-          <>
-            {shelves.map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}/>)}
+          <Bookcase>
+            {shelves.map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
+              isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length}/>)}
             {fBooks.length===0 && shelves.length === 0 && (
               <div onClick={openSearch} style={{ textAlign:"center", padding:"44px 20px", cursor:"pointer" }}>
                 <div style={{ fontSize:40, marginBottom:10, opacity:.3 }}>+</div>
                 <p style={{ fontSize:13, color:T.textFaint }}>Tap to add your first book</p>
               </div>
             )}
-          </>
+          </Bookcase>
         )}
 
         {tab==="list" && (
@@ -1550,20 +1669,19 @@ export default function App() {
               </div>
             )}
             {query.length >= 2 && allSugs.length === 0 && triedApi === query && !apiLoading && (
-              <div style={{ padding:"28px 20px", textAlign:"center" }}>
-                <p style={{ color:T.textMuted, fontSize:13, marginBottom:16 }}>No results found</p>
-                <button onClick={addManual} style={{
-                  padding:"12px 28px", background:T.accentSoft, border:`1px solid ${T.accentBorder}`,
-                  borderRadius:T.cardRadius, color:T.accentText, fontSize:14, cursor:"pointer",
-                  fontFamily:T.bodyFont, fontWeight:500,
-                }}>Add "{query}" manually</button>
+              <div style={{ padding:"16px 20px", textAlign:"center" }}>
+                <p style={{ color:T.textMuted, fontSize:13, marginBottom:12 }}>No results found online</p>
               </div>
+            )}
+            {/* Manual add — always visible when query has text */}
+            {query.length >= 2 && (
+              <ManualAdd query={query} onAdd={addBook} />
             )}
             {query.length < 2 && (
               <div style={{ padding:"44px 20px", textAlign:"center" }}>
                 <div style={{ fontSize:36, marginBottom:10, opacity:.35 }}>📖</div>
                 <p style={{ color:T.textFaint, fontSize:13 }}>Start typing to search for books</p>
-                <p style={{ color:T.textFaint, fontSize:12, marginTop:6, opacity:.6 }}>Or type a title and press Enter to add manually</p>
+                <p style={{ color:T.textFaint, fontSize:12, marginTop:6, opacity:.6 }}>Search by title, author, or ISBN</p>
               </div>
             )}
           </div>
