@@ -123,7 +123,7 @@ export function useShelfData() {
   const isCloud = !!(user && supabase);
 
   const [books, setBooks] = useState([]);
-  const [themeId, setThemeIdState] = useState("classic");
+  const [themeId, setThemeIdState] = useState("light");
   const [shelfName, setShelfNameState] = useState("My Shelf");
   const [decorations, setDecorationsState] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);

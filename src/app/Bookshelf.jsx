@@ -61,37 +61,37 @@ const THEMES = {
   light: {
     id: "light", name: "Light", desc: "Clean & bright",
     icon: "☀️",
-    bg: "#faf8f4", surface: "#ffffff", surfaceAlt: "#f5f2ec",
-    text: "#2c2416", textSub: "rgba(60,45,25,.6)", textMuted: "rgba(60,45,25,.4)",
-    textFaint: "rgba(60,45,25,.2)", textPlaceholder: "rgba(60,45,25,.25)",
-    accent: "#8b6914", accentBg: "rgba(139,105,20,.1)", accentBorder: "rgba(139,105,20,.25)",
-    accentSoft: "rgba(139,105,20,.06)", accentText: "#8b6914",
-    fab: "#8b6914", fabText: "#fff",
-    cardBg: "rgba(0,0,0,.02)", cardBorder: "rgba(0,0,0,.07)",
+    bg: "#fdf5f5", surface: "#ffffff", surfaceAlt: "#faf0f0",
+    text: "#111111", textSub: "rgba(0,0,0,.6)", textMuted: "rgba(0,0,0,.4)",
+    textFaint: "rgba(0,0,0,.2)", textPlaceholder: "rgba(0,0,0,.25)",
+    accent: "#c9707d", accentBg: "rgba(201,112,125,.1)", accentBorder: "rgba(201,112,125,.25)",
+    accentSoft: "rgba(201,112,125,.06)", accentText: "#111111",
+    fab: "#c9707d", fabText: "#fff",
+    cardBg: "rgba(0,0,0,.02)", cardBorder: "rgba(0,0,0,.08)",
     inputBg: "rgba(0,0,0,.03)", inputBorder: "rgba(0,0,0,.1)",
-    navBg: "rgba(255,255,252,.75)", navBorder: "rgba(0,0,0,.08)",
-    navActive: "rgba(139,105,20,.12)", navIcon: "rgba(60,45,25,.4)",
-    shelfFront: "linear-gradient(180deg, #c4a67a 0%, #b89868 40%, #a88c58 100%)",
-    shelfShadow: "0 3px 8px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.5)",
-    shelfBg: "linear-gradient(180deg, rgba(200,180,150,.08) 0%, rgba(200,180,150,.02) 100%)",
-    wood: "#b89868", woodDark: "#9a7d52", woodLight: "#d4b88a", bookcaseBg: "rgba(245,235,220,.6)",
-    sheetBg: "linear-gradient(180deg, #ffffff, #faf8f4)",
+    navBg: "rgba(253,245,245,.85)", navBorder: "rgba(0,0,0,.08)",
+    navActive: "rgba(201,112,125,.12)", navIcon: "rgba(0,0,0,.4)",
+    shelfFront: "linear-gradient(180deg, #d4a0a8 0%, #c99098 40%, #b88088 100%)",
+    shelfShadow: "0 3px 8px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.5)",
+    shelfBg: "linear-gradient(180deg, rgba(220,180,185,.08) 0%, rgba(220,180,185,.02) 100%)",
+    wood: "#c9a0a8", woodDark: "#b08890", woodLight: "#e0c0c5", bookcaseBg: "rgba(250,235,238,.6)",
+    sheetBg: "linear-gradient(180deg, #ffffff, #fdf5f5)",
     overlayBg: "rgba(0,0,0,.35)",
     headingFont: "'Instrument Serif', serif",
     bodyFont: "'Inter', sans-serif",
     chipRadius: 16, cardRadius: 14, sheetRadius: 22, inputRadius: 12,
     statusColors: {
-      want:     { color: "#9a7a1a", bg: "rgba(154,122,26,.1)",  ring: "rgba(154,122,26,.2)" },
+      want:     { color: "#b07040", bg: "rgba(176,112,64,.1)",  ring: "rgba(176,112,64,.2)" },
       reading:  { color: "#3d7a2e", bg: "rgba(61,122,46,.1)",   ring: "rgba(61,122,46,.2)" },
       finished: { color: "#5a5ab0", bg: "rgba(90,90,176,.1)",   ring: "rgba(90,90,176,.2)" },
     },
-    starColor: "#d4a018", starOff: "rgba(0,0,0,.1)",
-    optionBg: "#faf8f4",
+    starColor: "#c9707d", starOff: "rgba(0,0,0,.1)",
+    optionBg: "#fdf5f5",
     divider: "rgba(0,0,0,.06)",
     dangerBg: "rgba(200,50,30,.06)", dangerBorder: "rgba(200,50,30,.12)", dangerText: "#b83a2a",
-    barBg: "rgba(139,105,20,",
-    bodyBg: "#faf8f4",
-    avatarBg: "rgba(139,105,20,.12)", avatarText: "#8b6914",
+    barBg: "rgba(201,112,125,",
+    bodyBg: "#fdf5f5",
+    avatarBg: "rgba(201,112,125,.12)", avatarText: "#c9707d",
   },
   noir: {
     id: "noir", name: "Noir", desc: "Bold & graphic",
@@ -200,7 +200,7 @@ const THEMES = {
   },
 };
 
-const ThemeCtx = createContext(THEMES.classic);
+const ThemeCtx = createContext(THEMES.light);
 function useTheme() { return useContext(ThemeCtx); }
 
 const ScaleCtx = createContext(1);
@@ -1733,7 +1733,7 @@ export default function App() {
   const [shelfView, setShelfView] = useState("spine"); // "spine" | "cover"
   const nameInputRef = useRef(null);
   const bookcaseRef = useRef(null);
-  const T = THEMES[themeId] || THEMES.classic;
+  const T = THEMES[themeId] || THEMES.light;
   const screenW = useWidth();
   const isDesktop = screenW >= 900;
   const isTablet = screenW >= 600 && screenW < 900;
