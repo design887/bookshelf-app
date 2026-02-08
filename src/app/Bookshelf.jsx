@@ -1925,7 +1925,7 @@ export default function App() {
         @keyframes dotPulse { 0%,100%{opacity:.2} 50%{opacity:.8} }
         @keyframes fabIn { from { transform:scale(0) rotate(-45deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
         * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--shelf-bg, #121212); }
+        body { background:var(--shelf-bg, #fdf5f5); }
         ::-webkit-scrollbar { width:0; }
         input::placeholder, textarea::placeholder { color:${T.textPlaceholder}; }
         .m3-icon { font-family:'Material Symbols Rounded'; font-size:24px; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased; }
