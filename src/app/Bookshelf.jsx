@@ -1867,7 +1867,7 @@ export default function App() {
   const spinePerShelf = isDesktop ? 14 : isTablet ? 9 : 8;
   const coverPerShelf = isDesktop ? 6 : isTablet ? 4 : 3;
   const perShelf = shelfView === "cover" ? coverPerShelf : spinePerShelf;
-  const minShelves = isDesktop ? 2 : 3;
+  const minShelves = 3;
   const shelves = [];
   for (let i = 0; i < Math.max(minShelves, Math.ceil(fBooks.length / perShelf)); i++)
     shelves.push(fBooks.slice(i * perShelf, (i + 1) * perShelf));
