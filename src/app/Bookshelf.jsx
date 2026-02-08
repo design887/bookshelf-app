@@ -938,11 +938,12 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves, v
     <div style={{ position:"relative" }}>
       <div style={{
         height: shelfH, padding: `${Math.round(8*scale)}px ${Math.round(12*scale)}px 0`,
-        display: "flex", alignItems: "flex-end", gap: Math.round(3 * scale),
+        display: "flex", alignItems: "flex-end", gap: Math.round((viewMode === "cover" ? 6 : 3) * scale),
         cursor: books.length === 0 ? "pointer" : "default",
         position: "relative",
         background: `${T.wood}0a`,
         borderRadius: radius,
+        overflow: "hidden",
       }} onClick={books.length === 0 ? onAdd : undefined}>
         {(books||[]).map((b, i) => viewMode === "cover"
           ? <BookCover key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />
@@ -1854,7 +1855,7 @@ export default function App() {
 
   const fBooks = filter === "all" ? yearBooks : yearBooks.filter(b => b.status === filter);
   const spinePerShelf = isDesktop ? 14 : isTablet ? 9 : 8;
-  const coverPerShelf = isDesktop ? 8 : isTablet ? 5 : 4;
+  const coverPerShelf = isDesktop ? 6 : isTablet ? 4 : 3;
   const perShelf = shelfView === "cover" ? coverPerShelf : spinePerShelf;
   const minShelves = isDesktop ? 2 : 3;
   const shelves = [];
