@@ -68,12 +68,16 @@ async function sbLoadPrefs(supabase, userId) {
 }
 
 async function sbSavePrefs(supabase, userId, prefs) {
-  const { error } = await supabase.from("user_prefs").upsert({
+  const row = {
     user_id: userId,
     theme: prefs.theme,
     shelf_name: prefs.shelfName,
     schema_version: SCHEMA_VERSION,
-  }, { onConflict: "user_id" });
+  };
+  if (prefs.decorations !== undefined) {
+    row.prefs = { decorations: prefs.decorations };
+  }
+  const { error } = await supabase.from("user_prefs").upsert(row, { onConflict: "user_id" });
   if (error) console.error("Save prefs error:", error);
 }
 
@@ -121,9 +125,11 @@ export function useShelfData() {
   const [books, setBooks] = useState([]);
   const [themeId, setThemeIdState] = useState("classic");
   const [shelfName, setShelfNameState] = useState("My Shelf");
+  const [decorations, setDecorationsState] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [migrated, setMigrated] = useState(false);
   const saveTimer = useRef(null);
+  const decoTimer = useRef(null);
 
   // ─── Load data ───
   useEffect(() => {
@@ -149,6 +155,7 @@ export function useShelfData() {
         if (!cancelled && prefs) {
           if (prefs.theme) setThemeIdState(prefs.theme);
           if (prefs.shelf_name) setShelfNameState(prefs.shelf_name);
+          if (prefs.prefs?.decorations) setDecorationsState(prefs.prefs.decorations);
         }
 
         if (!cancelled) setDataLoading(false);
@@ -161,6 +168,10 @@ export function useShelfData() {
         try {
           const v = localGet("shelf-name");
           if (v) setShelfNameState(v);
+        } catch {}
+        try {
+          const v = localGet("shelf-decorations");
+          if (v) setDecorationsState(JSON.parse(v));
         } catch {}
 
         const raw = localGet("shelf-v5");
@@ -252,11 +263,27 @@ export function useShelfData() {
     else localSet("shelf-name", name);
   }, [isCloud, supabase, user, themeId]);
 
+  const setDecorations = useCallback((decos) => {
+    setDecorationsState(prev => {
+      const next = typeof decos === "function" ? decos(prev) : decos;
+      if (isCloud) {
+        clearTimeout(decoTimer.current);
+        decoTimer.current = setTimeout(() => {
+          sbSavePrefs(supabase, user?.id, { theme: themeId, shelfName, decorations: next });
+        }, 800);
+      } else {
+        localSet("shelf-decorations", JSON.stringify(next));
+      }
+      return next;
+    });
+  }, [isCloud, supabase, user, themeId, shelfName]);
+
   return {
     books, setBooks,
     addBook, removeBook, updateBook,
     themeId, setThemeId,
     shelfName, setShelfName,
+    decorations, setDecorations,
     loading: authLoading || dataLoading,
     user, signIn, signOut,
     isCloud,
