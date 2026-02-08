@@ -1609,6 +1609,7 @@ function LandingPage({ signIn }) {
     }}>
       <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet"/>
       <style>{`
+        body { background: #fdf5f5; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
       `}</style>
@@ -1925,7 +1926,7 @@ export default function App() {
         @keyframes dotPulse { 0%,100%{opacity:.2} 50%{opacity:.8} }
         @keyframes fabIn { from { transform:scale(0) rotate(-45deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
         * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--shelf-bg, #fdf5f5); }
+        body { background:${T.bodyBg}; }
         ::-webkit-scrollbar { width:0; }
         input::placeholder, textarea::placeholder { color:${T.textPlaceholder}; }
         .m3-icon { font-family:'Material Symbols Rounded'; font-size:24px; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased; }
