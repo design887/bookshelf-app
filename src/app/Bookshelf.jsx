@@ -888,7 +888,7 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves })
         background: `${T.wood}0a`,
         borderRadius: radius,
       }} onClick={books.length === 0 ? onAdd : undefined}>
-        {books.map((b, i) => <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />)}
+        {(books||[]).map((b, i) => <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />)}
       </div>
       {!isLast && <div data-shelf-plank style={{ height: Math.round(14 * scale) }}/>}
       {isLast && <div data-shelf-plank style={{ height: 0 }}/>}
@@ -1111,23 +1111,24 @@ function Detail({ book, onClose, onRemove, onUpdate, years, fetchCover }) {
 }
 
 /* ── Stats ── */
-function AnimNum({ val, duration = 800 }) {
-  const [display, setDisplay] = useState(0);
-  const numVal = typeof val === "string" ? parseFloat(val) : val;
-  const isNum = !isNaN(numVal) && val !== "—";
-  const isFloat = typeof val === "string" && val.includes(".");
+function AnimNum({ val, duration = 800, format }) {
+  const [display, setDisplay] = useState(typeof val === "number" ? 0 : val);
   useEffect(() => {
-    if (!isNum) { setDisplay(val); return; }
-    let start = null;
+    const numVal = typeof val === "number" ? val : parseFloat(String(val));
+    if (isNaN(numVal) || val === "—") { setDisplay(val); return; }
+    const isFloat = String(val).includes(".");
+    let start = null, raf;
     const step = (ts) => {
       if (!start) start = ts;
       const p = Math.min(1, (ts - start) / duration);
-      const ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
-      setDisplay(isFloat ? (numVal * ease).toFixed(1) : Math.round(numVal * ease));
-      if (p < 1) requestAnimationFrame(step);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const cur = numVal * ease;
+      setDisplay(isFloat ? cur.toFixed(1) : format ? Math.round(cur).toLocaleString() : Math.round(cur));
+      if (p < 1) raf = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
-  }, [numVal]);
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [val]);
   return <>{display}</>;
 }
 
@@ -1145,11 +1146,11 @@ function Stats({ books, label }) {
   const [barsVisible, setBarsVisible] = useState(false);
   useEffect(() => { const t = setTimeout(() => setBarsVisible(true), 300); return () => clearTimeout(t); }, []);
 
-  const Card = ({ emoji, val, label, accent, delay = 0 }) => (
+  const Card = ({ emoji, val, label, accent, delay = 0, fmt }) => (
     <div style={{ flex:1, background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:"18px 8px", textAlign:"center",
       animation:`fadeUp .5s ease ${delay}s both` }}>
       <div style={{ fontSize:16, marginBottom:6, opacity:.7 }}>{emoji}</div>
-      <div style={{ fontSize:40, fontWeight:400, fontStyle:"italic", fontFamily:T.headingFont, color: accent || T.accentText, lineHeight:1, letterSpacing:"-1px" }}><AnimNum val={val}/></div>
+      <div style={{ fontSize:40, fontWeight:400, fontStyle:"italic", fontFamily:T.headingFont, color: accent || T.accentText, lineHeight:1, letterSpacing:"-1px" }}><AnimNum val={val} format={fmt}/></div>
       <div style={{ fontSize:10, color:T.textMuted, marginTop:6, fontFamily:T.bodyFont, fontWeight:500, letterSpacing:".5px", textTransform:"uppercase" }}>{label}</div>
     </div>
   );
@@ -1164,7 +1165,7 @@ function Stats({ books, label }) {
       </div>
       <div style={{ display:"flex", gap:8, marginBottom:18 }}>
         <Card emoji="⭐" val={avg} label="Avg Rating" delay={.15}/>
-        <Card emoji="📄" val={pgs>0?pgs.toLocaleString():"—"} label="Pages Read" delay={.2}/>
+        <Card emoji="📄" val={pgs>0?pgs:"—"} label="Pages Read" fmt delay={.2}/>
         <Card emoji="📋" val={wnt} label="Want to Read" accent={T.statusColors?.want?.color || "#c9a84c"} delay={.25}/>
       </div>
       {rated.length > 0 && (
@@ -1512,7 +1513,7 @@ function DecorationOverlay({ decorations, setDecorations, containerRef }) {
         />
       )}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
-        {decorations.map(d => (
+        {(decorations||[]).map(d => (
           <DraggableDecoration
             key={d.uid}
             deco={d}
@@ -1970,7 +1971,7 @@ export default function App() {
         {tab==="shelf" && (
           <div ref={bookcaseRef} style={{ position: "relative" }}>
             <Bookcase>
-              {shelves.map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
+              {(shelves||[]).map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
                 isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length}/>)}
               {fBooks.length===0 && shelves.length === 0 && (
                 <div onClick={openSearch} style={{ textAlign:"center", padding:"44px 20px", cursor:"pointer" }}>
@@ -1991,7 +1992,7 @@ export default function App() {
         {tab==="list" && (
           <div style={{ padding:"4px 6px", display:isDesktop?"grid":"block", gridTemplateColumns:isDesktop?"1fr 1fr":"1fr", gap:isDesktop?"0 20px":"0" }}>
             {fBooks.length===0 ? <div style={{ textAlign:"center", padding:"60px 20px", gridColumn:"1/-1" }}><div style={{ fontSize:36, marginBottom:12, opacity:.3 }}>📖</div><p style={{ color:T.textMuted, fontSize:14, fontFamily:T.bodyFont }}>No books yet</p><p style={{ color:T.textFaint, fontSize:12, marginTop:4 }}>Tap + to add your first book</p></div>
-            : fBooks.map((book,i) => {
+            : (fBooks||[]).map((book,i) => {
               if (!book.cover && !book.coverTried) fetchCover(book);
               const sc = STATUS[book.status]||STATUS.want;
               return (
