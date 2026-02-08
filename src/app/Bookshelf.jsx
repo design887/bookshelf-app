@@ -42,8 +42,8 @@ const THEMES = {
     wood: "#5a4230", woodDark: "#3d2c1a", woodLight: "#6b5040", bookcaseBg: "rgba(20,16,12,.85)",
     sheetBg: "linear-gradient(180deg, #1e1a16, #151210)",
     overlayBg: "rgba(0,0,0,.7)",
-    headingFont: "'Playfair Display', serif",
-    bodyFont: "'DM Sans', sans-serif",
+    headingFont: "'Instrument Serif', serif",
+    bodyFont: "'Inter', sans-serif",
     chipRadius: 16, cardRadius: 14, sheetRadius: 22, inputRadius: 12,
     statusColors: {
       want:     { color: "#c9a84c", bg: "rgba(200,168,76,.12)", ring: "rgba(200,168,76,.25)" },
@@ -77,8 +77,8 @@ const THEMES = {
     wood: "#b89868", woodDark: "#9a7d52", woodLight: "#d4b88a", bookcaseBg: "rgba(245,235,220,.6)",
     sheetBg: "linear-gradient(180deg, #ffffff, #faf8f4)",
     overlayBg: "rgba(0,0,0,.35)",
-    headingFont: "'Playfair Display', serif",
-    bodyFont: "'DM Sans', sans-serif",
+    headingFont: "'Instrument Serif', serif",
+    bodyFont: "'Inter', sans-serif",
     chipRadius: 16, cardRadius: 14, sheetRadius: 22, inputRadius: 12,
     statusColors: {
       want:     { color: "#9a7a1a", bg: "rgba(154,122,26,.1)",  ring: "rgba(154,122,26,.2)" },
@@ -228,7 +228,7 @@ function ProfileMenu({ theme, setThemeId, onClose, isDesktop, screenW, contentMa
           background:"none", border:"none", color:T.textMuted, fontSize:12, cursor:"pointer",
           fontFamily:T.bodyFont, marginBottom:12, display:"flex", alignItems:"center", gap:4,
         }}>← Back</button>
-        <h3 style={{ fontFamily:T.headingFont, fontSize:20, fontWeight:700, color:T.text, marginBottom:16 }}>Appearance</h3>
+        <h3 style={{ fontFamily:T.headingFont, fontSize:26, fontWeight:400, fontStyle:"italic", color:T.text, marginBottom:16 }}>Appearance</h3>
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
           {Object.values(THEMES).map(t => {
             const active = T.id === t.id;
@@ -268,7 +268,7 @@ function ProfileMenu({ theme, setThemeId, onClose, isDesktop, screenW, contentMa
         position:"absolute", top:52, right:isDesktop?Math.max(16,(screenW-contentMax)/2+16):16,
         background:T.surface, border:`1px solid ${T.cardBorder}`,
         borderRadius:T.cardRadius, padding:6, minWidth:180,
-        boxShadow:"0 8px 32px rgba(0,0,0,.3)", animation:"fadeIn .12s ease",
+         animation:"fadeIn .12s ease",
       }}>
         {[
           { icon:"palette", label:"Appearance", action:() => setShowAppearance(true) },
@@ -774,19 +774,15 @@ function searchLocal(query) {
 
 /* ── Spine colors — wide variety ── */
 const SPINE_COLORS = [
-  "#2D3A3A","#8B4513","#1a1a2e","#4a3728","#2c3e50","#3d1c02","#1b2838",
-  "#4a1942","#0f3460","#2d4a22","#5c3317","#3b3a30","#6b2737","#2a4858",
-  "#4b3621","#704214","#3c1518","#1a3a3a","#5b4a3f","#2e294e","#463730",
-  "#8d3b47","#2a6041","#7c4a3a","#3a506b","#774936","#4e6e58","#6d435a",
-  "#456268","#924a2a","#2b4141","#5e3a6e","#6e4b3a","#1e453e","#7a3e3e",
-  "#3e4a2e","#4a2e4a","#2e3a5a","#5a4a2e","#3a2e1e","#583a58","#2e5a3a",
+  "#4a6670","#c4785a","#e8c468","#6b8f71","#9b6b8a","#5478a0","#d4956a",
+  "#7a9e82","#b87070","#5c7ca0","#c49858","#8b7eb8","#6a9480","#d48070",
+  "#7888a0","#b8a060","#6b7860","#a06878","#5890a0","#c87868","#88a878",
+  "#a0789c","#7098a0","#d0a058","#607888","#b87888","#689878","#987898",
+  "#788898","#c88058","#608878","#8878a8","#a08868","#589080","#a87070",
+  "#708058","#885888","#587898","#a89058","#786050","#906090","#609070",
 ];
 
-const SPINE_TEXTURES = [
-  "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 30%, transparent 70%, rgba(0,0,0,.15) 100%)",
-  "linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 15%, transparent 50%, rgba(0,0,0,.08) 85%, rgba(0,0,0,.2) 100%)",
-  "linear-gradient(180deg, rgba(255,255,255,.06) 0%, transparent 20%, rgba(255,255,255,.02) 50%, transparent 80%, rgba(0,0,0,.12) 100%)",
-];
+const SPINE_TEXTURES = []; // unused — flat style
 
 const STATUS = {
   want:     { label: "Want to Read", icon: "📋", color: "#c9a84c", bg: "rgba(200,168,76,.12)", ring: "rgba(200,168,76,.25)" },
@@ -796,13 +792,11 @@ const STATUS = {
 
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0; return Math.abs(h); }
 
-/* Pages → spine width: 100p→22px, 300p→32px, 600p→42px, 1000+→52px */
 function spineWidth(pages, title) {
   if (pages && pages > 0) {
     const clamped = Math.max(80, Math.min(1200, pages));
-    return Math.round(20 + (clamped - 80) * (32 / 1120)); // 20–52px
+    return Math.round(20 + (clamped - 80) * (32 / 1120));
   }
-  // Fallback: hash-based width for books without page data
   return 26 + (hash(title) % 16);
 }
 
@@ -828,127 +822,103 @@ function Stars({ rating = 0, onChange, size = 20, interactive = true }) {
   );
 }
 
-/* ── Book Spine ── */
+/* ── Book Spine — flat 2D vector style ── */
 function BookSpine({ book, index, onClick }) {
   const scale = useScale();
+  const T = useTheme();
   const h = hash(book.title + (book.author || ""));
   const color = SPINE_COLORS[h % SPINE_COLORS.length];
-  const texture = SPINE_TEXTURES[h % SPINE_TEXTURES.length];
   const w = Math.round(spineWidth(book.pages, book.title) * scale);
-  const isGold = h % 3 === 0;
-  const hasBand = h % 4 < 2;
-  const bandY = h % 2 === 0 ? 8 + (h % 12) : 78 + (h % 12);
-  const hasDoubleBand = h % 5 === 0;
-  const sc = book.status === "reading" ? STATUS.reading.color : book.status === "finished" ? STATUS.finished.color : null;
-  const hoverY = Math.round(10 * scale);
+  const hoverY = Math.round(8 * scale);
+  const r = Math.round(3 * scale);
+
+  // Decorative bands at FIXED positions (consistent across all books)
+  const hasBand = h % 3 !== 0;
+  const hasBand2 = h % 5 < 2;
+  const accent = `rgba(255,255,255,${.12 + (h%3)*.05})`;
 
   return (
-    <div onClick={() => onClick(book)} style={{
-      width: w, height: "100%", background: color, borderRadius: `${2*scale}px ${4*scale}px ${4*scale}px ${2*scale}px`,
-      position: "relative", cursor: "pointer", flexShrink: 0,
-      boxShadow: "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 0 3px rgba(0,0,0,.2)",
-      transition: "transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s", overflow: "hidden",
+    <div style={{ flexShrink: 0, height: "100%",
       animation: `spineUp .4s cubic-bezier(.34,1.56,.64,1) ${index * .04}s both`,
+    }}>
+    <div className="book-spine" onClick={() => onClick(book)} style={{
+      width: w, height: "100%", background: color,
+      borderRadius: `${r}px`,
+      position: "relative", cursor: "pointer",
+      overflow: "hidden",
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform = `translateY(-${hoverY}px)`; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
-      onTouchStart={e => { e.currentTarget.style.transform = `translateY(-${hoverY}px)`; e.currentTarget.style.boxShadow = "inset -2px 0 4px rgba(0,0,0,.3), inset 1px 0 1px rgba(255,255,255,.05), 2px 6px 16px rgba(0,0,0,.45)"; }}
-      onTouchEnd={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
-      onTouchCancel={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
     >
-      <div style={{ position:"absolute", inset:0, background:texture, pointerEvents:"none" }}/>
-      {hasBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY}%`, height:Math.max(2, 2*scale), background: isGold ? "linear-gradient(90deg, transparent, #c9a84c, #f0d78c, #c9a84c, transparent)" : "rgba(255,255,255,.1)" }}/>}
-      {hasDoubleBand && <div style={{ position:"absolute", left:0, right:0, top:`${bandY+4}%`, height:Math.max(1, 1*scale), background: isGold ? "linear-gradient(90deg, transparent, #c9a84c88, transparent)" : "rgba(255,255,255,.06)" }}/>}
+      {/* Decorative bands — fixed positions so they align across books */}
+      {hasBand && <div style={{ position:"absolute", left:"15%", right:"15%", top:"8%",
+        height: Math.max(2, 2*scale), background: accent, borderRadius: 1 }}/>}
+      {hasBand2 && <div style={{ position:"absolute", left:"15%", right:"15%", top:"88%",
+        height: Math.max(2, 2*scale), background: accent, borderRadius: 1 }}/>}
+      {/* Title — truncated well before bands */}
       <div style={{
         position:"absolute", top:"50%", left:"50%",
         transform:"translate(-50%,-50%) rotate(-90deg)",
-        whiteSpace:"nowrap", fontSize: Math.min(10*scale, w * .26),
-        fontFamily:"'Playfair Display', Georgia, serif", fontWeight: 500,
-        color: isGold ? "#e8d5a3" : "rgba(255,255,255,.75)",
-        letterSpacing:".5px", textShadow:"0 1px 2px rgba(0,0,0,.5)",
-        maxWidth: Math.round(140*scale), overflow:"hidden", textOverflow:"ellipsis",
+        whiteSpace:"nowrap", fontSize: Math.min(10*scale, w * .28),
+        fontFamily: T.bodyFont, fontWeight: 600,
+        color: "rgba(255,255,255,.8)",
+        letterSpacing: ".3px",
+        maxWidth: Math.round(105*scale), overflow:"hidden", textOverflow:"ellipsis",
       }}>{book.title}</div>
-      {sc && <div style={{ position:"absolute", top:Math.round(5*scale), left:"50%", transform:"translateX(-50%)", width:Math.round(5*scale), height:Math.round(5*scale), borderRadius:"50%", background:sc, boxShadow:`0 0 4px ${sc}` }}/>}
-      <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:"linear-gradient(180deg, rgba(255,255,255,.1), transparent)" }}/>
-      <div style={{ position:"absolute", bottom:0, left:0, right:0, height:4, background:"linear-gradient(0deg, rgba(0,0,0,.2), transparent)" }}/>
+    </div>
     </div>
   );
 }
+
 
 /* ── Shelf ── */
 function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves }) {
   const T = useTheme();
   const scale = useScale();
   const shelfH = Math.round(155 * scale);
-  const plankH = Math.round(16 * scale);
+  const r = Math.round(14 * scale);
+  const radius = isFirst && isLast ? `${r}px` :
+    isFirst ? `${r}px ${r}px 0 0` :
+    isLast ? `0 0 ${r}px ${r}px` : '0';
   return (
     <div style={{ position:"relative" }}>
-      {/* Back panel — visible behind books */}
       <div style={{
-        height: shelfH, padding: `${Math.round(8*scale)}px ${Math.round(10*scale)}px 0`,
+        height: shelfH, padding: `${Math.round(8*scale)}px ${Math.round(12*scale)}px 0`,
         display: "flex", alignItems: "flex-end", gap: Math.round(3 * scale),
-        background: T.bookcaseBg,
         cursor: books.length === 0 ? "pointer" : "default",
         position: "relative",
+        background: `${T.wood}0a`,
+        borderRadius: radius,
       }} onClick={books.length === 0 ? onAdd : undefined}>
-        {/* Subtle back panel texture */}
-        <div style={{ position:"absolute", inset:0, opacity:.04,
-          background:"repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,.3) 30px, rgba(255,255,255,.3) 31px)",
-          pointerEvents:"none" }}/>
         {books.map((b, i) => <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />)}
       </div>
-      {/* Shelf plank — thick wooden ledge */}
-      <div style={{
-        height: plankH, position:"relative",
-        background: T.shelfFront,
-        boxShadow: T.shelfShadow,
-      }}>
-        {/* Wood grain lines */}
-        <div style={{ position:"absolute", inset:0, opacity:.08,
-          background:"repeating-linear-gradient(180deg, transparent, transparent 3px, rgba(255,255,255,.2) 3px, rgba(255,255,255,.2) 4px)",
-          pointerEvents:"none" }}/>
-        {/* Top edge highlight */}
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:1,
-          background:"linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06))" }}/>
-      </div>
+      {!isLast && <div data-shelf-plank style={{ height: Math.round(14 * scale) }}/>}
+      {isLast && <div data-shelf-plank style={{ height: 0 }}/>}
     </div>
   );
 }
 
-/* ── Bookcase wrapper — adds wood side panels ── */
+/* ── Bookcase — dashed border with gap to shelf panels ── */
 function Bookcase({ children }) {
   const T = useTheme();
   const scale = useScale();
-  const sideW = Math.round(8 * scale);
-  const topH = Math.round(6 * scale);
-  const botH = Math.round(8 * scale);
+  const inset = Math.round(14 * scale);
+  const r = Math.round(22 * scale);
+
   return (
-    <div style={{
-      position:"relative",
-      borderLeft:`${sideW}px solid ${T.wood}`,
-      borderRight:`${sideW}px solid ${T.wood}`,
-      borderTop:`${topH}px solid ${T.wood}`,
-      borderBottom:`${botH}px solid ${T.wood}`,
-      borderRadius: Math.round(4 * scale),
-      boxShadow: `0 4px 20px rgba(0,0,0,.3)`,
-      overflow:"hidden",
+    <div data-bookcase style={{
+      position: "relative",
+      padding: inset,
     }}>
-      <div style={{ position:"absolute", left:-sideW, top:0, bottom:0, width:sideW, zIndex:2, pointerEvents:"none",
-        background:`linear-gradient(90deg, ${T.woodDark}, ${T.woodLight} 50%, ${T.wood})` }}>
-        <div style={{ position:"absolute", inset:0, opacity:.06,
-          background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
-      </div>
-      <div style={{ position:"absolute", right:-sideW, top:0, bottom:0, width:sideW, zIndex:2, pointerEvents:"none",
-        background:`linear-gradient(270deg, ${T.woodDark}, ${T.woodLight} 50%, ${T.wood})` }}>
-        <div style={{ position:"absolute", inset:0, opacity:.06,
-          background:"repeating-linear-gradient(180deg, transparent, transparent 8px, rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 9px)" }}/>
-      </div>
+      <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none" }}>
+        <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)"
+          rx={r} ry={r} fill="none"
+          stroke={T.wood} strokeWidth="1" strokeDasharray="14 10"
+          strokeOpacity="0.45" strokeLinecap="round"/>
+      </svg>
       {children}
     </div>
   );
 }
 
-/* ── Manual Add Form ── */
 function ManualAdd({ query, onAdd }) {
   const T = useTheme();
   const [expanded, setExpanded] = useState(false);
@@ -1061,10 +1031,10 @@ function Detail({ book, onClose, onRemove, onUpdate, years, fetchCover }) {
 
         <div style={{ display:"flex", gap:16 }}>
           {book.cover ? (
-            <img src={book.cover} alt="" style={{ width:85, height:128, objectFit:"cover", borderRadius:6, boxShadow:"0 4px 16px rgba(0,0,0,.4)", flexShrink:0, background:SPINE_COLORS[hash(book.title)%SPINE_COLORS.length] }}
+            <img src={book.cover} alt="" style={{ width:85, height:128, objectFit:"cover", borderRadius:6, flexShrink:0, background:SPINE_COLORS[hash(book.title)%SPINE_COLORS.length] }}
               onError={e => { e.target.onerror=null; e.target.src=""; e.target.style.display="none"; e.target.nextSibling && (e.target.nextSibling.style.display="flex"); }}/>
           ) : null}
-          <div style={{ width:85, height:128, borderRadius:6, flexShrink:0, background:SPINE_COLORS[hash(book.title)%SPINE_COLORS.length], display:book.cover?"none":"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 4px 16px rgba(0,0,0,.4)" }}>
+          <div style={{ width:85, height:128, borderRadius:6, flexShrink:0, background:SPINE_COLORS[hash(book.title)%SPINE_COLORS.length], display:book.cover?"none":"flex", alignItems:"center", justifyContent:"center" }}>
             <span style={{ fontSize:28 }}>📕</span>
           </div>
           <div style={{ flex:1, minWidth:0 }}>
@@ -1141,6 +1111,26 @@ function Detail({ book, onClose, onRemove, onUpdate, years, fetchCover }) {
 }
 
 /* ── Stats ── */
+function AnimNum({ val, duration = 800 }) {
+  const [display, setDisplay] = useState(0);
+  const numVal = typeof val === "string" ? parseFloat(val) : val;
+  const isNum = !isNaN(numVal) && val !== "—";
+  const isFloat = typeof val === "string" && val.includes(".");
+  useEffect(() => {
+    if (!isNum) { setDisplay(val); return; }
+    let start = null;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const p = Math.min(1, (ts - start) / duration);
+      const ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      setDisplay(isFloat ? (numVal * ease).toFixed(1) : Math.round(numVal * ease));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [numVal]);
+  return <>{display}</>;
+}
+
 function Stats({ books, label }) {
   const T = useTheme();
   const total = books.length;
@@ -1152,12 +1142,15 @@ function Stats({ books, label }) {
   const pgs = books.filter(b => b.status==="finished").reduce((s,b) => s+(b.pages||0), 0);
   const rDist = [0,0,0,0,0]; rated.forEach(b => rDist[b.rating-1]++);
   const maxRD = Math.max(1,...rDist);
+  const [barsVisible, setBarsVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setBarsVisible(true), 300); return () => clearTimeout(t); }, []);
 
-  const Card = ({ emoji, val, label, accent }) => (
-    <div style={{ flex:1, background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:"14px 8px", textAlign:"center" }}>
-      <div style={{ fontSize:18, marginBottom:4 }}>{emoji}</div>
-      <div style={{ fontSize:22, fontWeight:700, fontFamily:T.headingFont, color: accent || T.accentText }}>{val}</div>
-      <div style={{ fontSize:10, color:T.textMuted, marginTop:2 }}>{label}</div>
+  const Card = ({ emoji, val, label, accent, delay = 0 }) => (
+    <div style={{ flex:1, background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:"18px 8px", textAlign:"center",
+      animation:`fadeUp .5s ease ${delay}s both` }}>
+      <div style={{ fontSize:16, marginBottom:6, opacity:.7 }}>{emoji}</div>
+      <div style={{ fontSize:40, fontWeight:400, fontStyle:"italic", fontFamily:T.headingFont, color: accent || T.accentText, lineHeight:1, letterSpacing:"-1px" }}><AnimNum val={val}/></div>
+      <div style={{ fontSize:10, color:T.textMuted, marginTop:6, fontFamily:T.bodyFont, fontWeight:500, letterSpacing:".5px", textTransform:"uppercase" }}>{label}</div>
     </div>
   );
 
@@ -1165,23 +1158,27 @@ function Stats({ books, label }) {
     <div style={{ padding:"4px 4px", maxWidth:600, margin:"0 auto" }}>
       {label && <div style={{ fontSize:11, color:T.textMuted, marginBottom:10, fontWeight:600, letterSpacing:".5px", textTransform:"uppercase", textAlign:"center" }}>{label} Stats</div>}
       <div style={{ display:"flex", gap:8, marginBottom:10 }}>
-        <Card emoji="📚" val={total} label="Total"/>
-        <Card emoji="✓" val={fin} label="Finished" accent={T.statusColors?.finished?.color || "#8a8ac4"}/>
-        <Card emoji="📖" val={rdg} label="Reading" accent={T.statusColors?.reading?.color || "#6a9f5b"}/>
+        <Card emoji="📚" val={total} label="Total" delay={0}/>
+        <Card emoji="✓" val={fin} label="Finished" accent={T.statusColors?.finished?.color || "#8a8ac4"} delay={.05}/>
+        <Card emoji="📖" val={rdg} label="Reading" accent={T.statusColors?.reading?.color || "#6a9f5b"} delay={.1}/>
       </div>
       <div style={{ display:"flex", gap:8, marginBottom:18 }}>
-        <Card emoji="⭐" val={avg} label="Avg Rating"/>
-        <Card emoji="📄" val={pgs>0?pgs.toLocaleString():"—"} label="Pages Read"/>
-        <Card emoji="📋" val={wnt} label="Want to Read" accent={T.statusColors?.want?.color || "#c9a84c"}/>
+        <Card emoji="⭐" val={avg} label="Avg Rating" delay={.15}/>
+        <Card emoji="📄" val={pgs>0?pgs.toLocaleString():"—"} label="Pages Read" delay={.2}/>
+        <Card emoji="📋" val={wnt} label="Want to Read" accent={T.statusColors?.want?.color || "#c9a84c"} delay={.25}/>
       </div>
       {rated.length > 0 && (
-        <div style={{ background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:16 }}>
+        <div style={{ background:T.cardBg, border:`1px solid ${T.cardBorder}`, borderRadius:T.cardRadius, padding:16,
+          animation:"fadeUp .5s ease .3s both" }}>
           <div style={{ fontSize:11, color:T.textMuted, marginBottom:12, fontWeight:600, letterSpacing:".5px", textTransform:"uppercase" }}>Rating Distribution</div>
           <div style={{ display:"flex", gap:8, alignItems:"flex-end", height:56 }}>
             {rDist.map((c,i) => (
               <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
                 {c > 0 && <div style={{ fontSize:10, color:T.textMuted, fontWeight:600 }}>{c}</div>}
-                <div style={{ width:"100%", borderRadius:6, height: Math.max(6, (c/maxRD)*44), background:`${T.barBg}${.15+i*.12})`, transition:"height .4s cubic-bezier(.34,1.2,.64,1)" }}/>
+                <div style={{ width:"100%", borderRadius:6,
+                  height: barsVisible ? Math.max(6, (c/maxRD)*44) : 0,
+                  background:`${T.barBg}${.15+i*.12})`,
+                  transition:`height .6s cubic-bezier(.34,1.4,.64,1) ${.35+i*.08}s` }}/>
                 <div style={{ fontSize:10, color:T.textFaint }}>{i+1}★</div>
               </div>
             ))}
@@ -1192,6 +1189,347 @@ function Stats({ books, label }) {
     </div>
   );
 }
+
+/* ═══════════════════════════════════════════
+   DECORATION SYSTEM
+   ═══════════════════════════════════════════ */
+const DECO_CATALOG = [
+  { cat: "Plants", items: [
+    { id: "plant-1", emoji: "🪴", label: "Potted Plant" },
+    { id: "plant-2", emoji: "🌵", label: "Cactus" },
+    { id: "plant-3", emoji: "🌿", label: "Fern" },
+    { id: "plant-4", emoji: "🌱", label: "Sprout" },
+    { id: "plant-5", emoji: "🍀", label: "Clover" },
+    { id: "plant-6", emoji: "🌸", label: "Blossom" },
+    { id: "plant-7", emoji: "🌻", label: "Sunflower" },
+    { id: "plant-8", emoji: "🌷", label: "Tulip" },
+  ]},
+  { cat: "Lighting", items: [
+    { id: "light-1", emoji: "🕯️", label: "Candle" },
+    { id: "light-2", emoji: "💡", label: "Bulb" },
+    { id: "light-3", emoji: "🔮", label: "Crystal Ball" },
+    { id: "light-4", emoji: "⭐", label: "Star" },
+    { id: "light-5", emoji: "🌙", label: "Moon" },
+    { id: "light-6", emoji: "✨", label: "Sparkles" },
+  ]},
+  { cat: "Figures", items: [
+    { id: "fig-1", emoji: "🐱", label: "Cat" },
+    { id: "fig-2", emoji: "🦉", label: "Owl" },
+    { id: "fig-3", emoji: "🐉", label: "Dragon" },
+    { id: "fig-4", emoji: "🧸", label: "Teddy Bear" },
+    { id: "fig-5", emoji: "🎭", label: "Masks" },
+    { id: "fig-6", emoji: "🗿", label: "Statue" },
+    { id: "fig-7", emoji: "🦊", label: "Fox" },
+    { id: "fig-8", emoji: "🐸", label: "Frog" },
+    { id: "fig-9", emoji: "🦋", label: "Butterfly" },
+  ]},
+  { cat: "Objects", items: [
+    { id: "obj-1", emoji: "☕", label: "Coffee" },
+    { id: "obj-2", emoji: "🍵", label: "Tea" },
+    { id: "obj-3", emoji: "⏰", label: "Clock" },
+    { id: "obj-4", emoji: "🌍", label: "Globe" },
+    { id: "obj-5", emoji: "🎵", label: "Music" },
+    { id: "obj-6", emoji: "📷", label: "Camera" },
+    { id: "obj-7", emoji: "🧭", label: "Compass" },
+    { id: "obj-8", emoji: "⌛", label: "Hourglass" },
+    { id: "obj-9", emoji: "🎨", label: "Palette" },
+    { id: "obj-10", emoji: "✒️", label: "Pen" },
+  ]},
+  { cat: "Cozy", items: [
+    { id: "cozy-1", emoji: "🧶", label: "Yarn" },
+    { id: "cozy-2", emoji: "🧣", label: "Scarf" },
+    { id: "cozy-3", emoji: "🎀", label: "Ribbon" },
+    { id: "cozy-4", emoji: "🏠", label: "House" },
+    { id: "cozy-5", emoji: "🪵", label: "Log" },
+    { id: "cozy-6", emoji: "🕰️", label: "Mantel Clock" },
+  ]},
+  { cat: "Seasonal", items: [
+    { id: "sea-1", emoji: "🎃", label: "Pumpkin" },
+    { id: "sea-2", emoji: "❄️", label: "Snowflake" },
+    { id: "sea-3", emoji: "🎄", label: "Tree" },
+    { id: "sea-4", emoji: "💝", label: "Heart Gift" },
+    { id: "sea-5", emoji: "🎊", label: "Confetti" },
+    { id: "sea-6", emoji: "🌈", label: "Rainbow" },
+    { id: "sea-7", emoji: "🎁", label: "Gift" },
+    { id: "sea-8", emoji: "🧧", label: "Red Envelope" },
+  ]},
+  { cat: "Spooky", items: [
+    { id: "spk-1", emoji: "💀", label: "Skull" },
+    { id: "spk-2", emoji: "👻", label: "Ghost" },
+    { id: "spk-3", emoji: "🕷️", label: "Spider" },
+    { id: "spk-4", emoji: "🕸️", label: "Web" },
+    { id: "spk-5", emoji: "🦇", label: "Bat" },
+    { id: "spk-6", emoji: "🧛", label: "Vampire" },
+    { id: "spk-7", emoji: "⚰️", label: "Coffin" },
+    { id: "spk-8", emoji: "🪦", label: "Gravestone" },
+    { id: "spk-9", emoji: "🔥", label: "Fire" },
+    { id: "spk-10", emoji: "🐍", label: "Snake" },
+  ]},
+];
+
+function DecoCatalog({ onAdd, onClose }) {
+  const T = useTheme();
+  const [cat, setCat] = useState(DECO_CATALOG[0].cat);
+  const items = DECO_CATALOG.find(c => c.cat === cat)?.items || [];
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: "rgba(0,0,0,.6)", backdropFilter: "blur(6px)",
+      display: "flex", alignItems: "flex-end", justifyContent: "center",
+    }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{
+        width: "100%", maxWidth: 480, maxHeight: "70vh",
+        background: T.surface, borderRadius: "20px 20px 0 0",
+        padding: "16px 0 24px", display: "flex", flexDirection: "column",
+        animation: "sheetUp .3s ease both",
+      }}>
+        {/* Handle */}
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: T.textMuted, margin: "0 auto 12px", opacity: .4 }}/>
+
+        <div style={{ padding: "0 20px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontFamily: T.headingFont, fontSize: 18, fontWeight: 600, color: T.accentText }}>Add Decoration</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: T.textMuted, fontSize: 20, cursor: "pointer" }}>✕</button>
+        </div>
+
+        {/* Category tabs */}
+        <div style={{ display: "flex", gap: 4, padding: "0 16px 12px", overflowX: "auto", flexShrink: 0 }}>
+          {DECO_CATALOG.map(c => (
+            <button key={c.cat} onClick={() => setCat(c.cat)} style={{
+              padding: "6px 14px", borderRadius: 20, border: "none", cursor: "pointer",
+              fontSize: 12, fontWeight: 500, fontFamily: T.bodyFont, whiteSpace: "nowrap",
+              background: cat === c.cat ? T.accent + "22" : "transparent",
+              color: cat === c.cat ? T.accentText : T.textSub,
+              transition: ".15s",
+            }}>{c.cat}</button>
+          ))}
+        </div>
+
+        {/* Items grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, padding: "0 16px", overflowY: "auto" }}>
+          {items.map(item => (
+            <button key={item.id} onClick={() => { onAdd(item); onClose(); }} style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+              padding: "12px 4px", background: T.cardBg, border: `1px solid ${T.cardBorder}`,
+              borderRadius: T.cardRadius || 12, cursor: "pointer",
+              transition: "all .15s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = T.accent + "15"; e.currentTarget.style.transform = "scale(1.05)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = T.cardBg; e.currentTarget.style.transform = ""; }}
+            >
+              <span style={{ fontSize: 28 }}>{item.emoji}</span>
+              <span style={{ fontSize: 10, color: T.textSub }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DraggableDecoration({ deco, onMove, onRemove, selected, onSelect, containerRef }) {
+  const [dragging, setDragging] = useState(false);
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const startPos = useRef({ x: 0, y: 0 });
+  const didDrag = useRef(false);
+  const DRAG_THRESHOLD = 5;
+
+  const handleStart = useCallback((clientX, clientY) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    offsetRef.current = {
+      x: clientX - rect.left - (deco.x / 100) * rect.width,
+      y: clientY - rect.top - (deco.y / 100) * rect.height,
+    };
+    startPos.current = { x: clientX, y: clientY };
+    didDrag.current = false;
+    setDragging(true);
+  }, [deco.x, deco.y, containerRef]);
+
+  const handleMove = useCallback((clientX, clientY) => {
+    if (!dragging) return;
+    if (!didDrag.current) {
+      const dx = clientX - startPos.current.x;
+      const dy = clientY - startPos.current.y;
+      if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+      didDrag.current = true;
+    }
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    let x = ((clientX - rect.left - offsetRef.current.x) / rect.width) * 100;
+    let y = ((clientY - rect.top - offsetRef.current.y) / rect.height) * 100;
+    x = Math.max(-2, Math.min(98, x));
+    y = Math.max(-2, Math.min(98, y));
+    const SNAP_PX = 18;
+    const emojiH = 88;
+
+    // Snap to shelf plank tops (horizontal)
+    const shelves = container.querySelectorAll("[data-shelf-plank]");
+    if (shelves.length > 0) {
+      const absY = (y / 100) * rect.height;
+      let bestSnapY = null;
+      let bestDist = Infinity;
+      shelves.forEach(plank => {
+        const pr = plank.getBoundingClientRect();
+        const plankTop = pr.top - rect.top;
+        const snapCenter = plankTop - emojiH / 2;
+        const dist = Math.abs(absY - snapCenter);
+        if (dist < SNAP_PX && dist < bestDist) {
+          bestDist = dist;
+          bestSnapY = (snapCenter / rect.height) * 100;
+        }
+      });
+      if (bestSnapY !== null) y = bestSnapY;
+    }
+
+    // Snap to bookcase edges (left, right, top, bottom)
+    const bookcase = container.querySelector("[data-bookcase]");
+    if (bookcase) {
+      const br = bookcase.getBoundingClientRect();
+      const absX = (x / 100) * rect.width;
+      const absY2 = (y / 100) * rect.height;
+      // Left inner edge
+      const leftEdge = br.left - rect.left + emojiH / 2;
+      if (Math.abs(absX - leftEdge) < SNAP_PX) x = (leftEdge / rect.width) * 100;
+      // Right inner edge
+      const rightEdge = br.right - rect.left - emojiH / 2;
+      if (Math.abs(absX - rightEdge) < SNAP_PX) x = (rightEdge / rect.width) * 100;
+      // Top inner edge
+      const topEdge = br.top - rect.top + emojiH / 2;
+      if (Math.abs(absY2 - topEdge) < SNAP_PX) y = (topEdge / rect.height) * 100;
+      // Bottom inner edge
+      const botEdge = br.bottom - rect.top - emojiH / 2;
+      if (Math.abs(absY2 - botEdge) < SNAP_PX) y = (botEdge / rect.height) * 100;
+    }
+
+    onMove(deco.uid, x, y);
+  }, [dragging, deco.uid, onMove, containerRef]);
+
+  const handleEnd = useCallback(() => {
+    setDragging(false);
+    if (!didDrag.current) {
+      onSelect(selected ? null : deco.uid);
+    }
+  }, [deco.uid, selected, onSelect]);
+
+  useEffect(() => {
+    if (!dragging) return;
+    const mm = (e) => { e.preventDefault(); handleMove(e.clientX, e.clientY); };
+    const mu = () => handleEnd();
+    const tm = (e) => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); };
+    const te = () => handleEnd();
+    window.addEventListener("mousemove", mm);
+    window.addEventListener("mouseup", mu);
+    window.addEventListener("touchmove", tm, { passive: false });
+    window.addEventListener("touchend", te);
+    return () => {
+      window.removeEventListener("mousemove", mm);
+      window.removeEventListener("mouseup", mu);
+      window.removeEventListener("touchmove", tm);
+      window.removeEventListener("touchend", te);
+    };
+  }, [dragging, handleMove, handleEnd]);
+
+  const scale = deco.scale || 1;
+  const realDragging = dragging && didDrag.current;
+
+  return (
+    <div
+      data-decoration-uid={deco.uid}
+      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleStart(e.clientX, e.clientY); }}
+      onTouchStart={e => { e.stopPropagation(); handleStart(e.touches[0].clientX, e.touches[0].clientY); }}
+      style={{
+        position: "absolute",
+        left: `${deco.x}%`, top: `${deco.y}%`,
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        fontSize: 88, lineHeight: 1,
+        cursor: realDragging ? "grabbing" : "grab",
+        zIndex: realDragging ? 100 : (deco.z || 10),
+        userSelect: "none", WebkitUserSelect: "none",
+        filter: "none",
+        transition: realDragging ? "none" : "filter .2s, top .15s, left .15s",
+        outline: selected && !realDragging ? "2px solid rgba(201,185,138,.5)" : "none",
+        outlineOffset: 4,
+        borderRadius: 8,
+        pointerEvents: "auto",
+      }}
+    >
+      {deco.emoji}
+      {selected && !realDragging && (
+        <button
+          onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); onRemove(deco.uid); }}
+          onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); onRemove(deco.uid); }}
+          style={{
+            position: "absolute", top: -6, right: -6,
+            width: 26, height: 26, borderRadius: 13,
+            background: "#e53935", border: "2px solid #fff", color: "#fff",
+            fontSize: 13, lineHeight: 1, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            
+          }}>✕</button>
+      )}
+    </div>
+  );
+}
+
+function DecorationOverlay({ decorations, setDecorations, containerRef }) {
+  const [selectedUid, setSelectedUid] = useState(null);
+
+  const handleMove = useCallback((uid, x, y) => {
+    setDecorations(prev => prev.map(d => d.uid === uid ? { ...d, x, y } : d));
+  }, [setDecorations]);
+
+  const handleRemove = useCallback((uid) => {
+    setDecorations(prev => prev.filter(d => d.uid !== uid));
+    setSelectedUid(null);
+  }, [setDecorations]);
+
+  // Delete/Backspace removes selected decoration
+  useEffect(() => {
+    if (!selectedUid) return;
+    const handler = (e) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        handleRemove(selectedUid);
+      }
+      if (e.key === "Escape") setSelectedUid(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedUid, handleRemove]);
+
+  return (
+    <>
+      {/* When a decoration is selected, show a full overlay that catches clicks to deselect.
+          This prevents clicks from reaching the shelf "add book" handler underneath. */}
+      {selectedUid && (
+        <div
+          onClick={(e) => { e.stopPropagation(); setSelectedUid(null); }}
+          style={{ position: "absolute", inset: 0, zIndex: 4, cursor: "default" }}
+        />
+      )}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
+        {decorations.map(d => (
+          <DraggableDecoration
+            key={d.uid}
+            deco={d}
+            onMove={handleMove}
+            onRemove={handleRemove}
+            selected={selectedUid === d.uid}
+            onSelect={setSelectedUid}
+            containerRef={containerRef}
+          />
+        ))}
+      </div>
+    </>
+  );
+}
+
+
+
 
 /* ═══════════════════════════════════════════
    Landing Page — shown when not signed in
@@ -1205,11 +1543,11 @@ function LandingPage({ signIn }) {
     <div style={{
       minHeight: "100vh", background: "#0e0c09",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      fontFamily: "'DM Sans', sans-serif", color: "#e8dcc8",
+      fontFamily: "'Inter', sans-serif", color: "#e8dcc8",
       padding: isMobile ? "40px 24px" : "40px",
       position: "relative", overflow: "hidden",
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
+      <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
@@ -1249,8 +1587,8 @@ function LandingPage({ signIn }) {
 
         {/* Title */}
         <h1 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: isMobile ? 32 : 42, fontWeight: 700,
+          fontFamily: "'Instrument Serif', serif",
+          fontSize: isMobile ? 36 : 48, fontWeight: 400, fontStyle: "italic",
           color: "#e8dcc8", letterSpacing: "-0.5px",
           lineHeight: 1.15, marginBottom: 12,
           animation: "fadeUp .6s ease-out .1s both",
@@ -1286,12 +1624,10 @@ function LandingPage({ signIn }) {
               : "linear-gradient(135deg, #b8943d, #8b6b2a)",
             border: "none", borderRadius: 14,
             color: "#0e0c09", fontSize: 16, fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             cursor: "pointer",
             transform: hovered ? "scale(1.03)" : "scale(1)",
-            boxShadow: hovered
-              ? "0 8px 32px rgba(185,148,61,.35)"
-              : "0 4px 16px rgba(185,148,61,.2)",
+
             transition: "all .2s ease",
             animation: "fadeUp .6s ease-out .35s both",
           }}
@@ -1326,12 +1662,15 @@ export default function App() {
   const {
     books, setBooks, addBook: shelfAddBook, removeBook, updateBook,
     themeId, setThemeId: changeTheme, shelfName, setShelfName,
+    decorations, setDecorations,
     loading: dataLoading, user, signIn, signOut, isCloud,
   } = useShelfData();
   const loaded = !dataLoading;
   const [showProfile, setShowProfile] = useState(false);
   const [editingName, setEditingName] = useState(false);
+  const [showDecoCatalog, setShowDecoCatalog] = useState(false);
   const nameInputRef = useRef(null);
+  const bookcaseRef = useRef(null);
   const T = THEMES[themeId] || THEMES.classic;
   const screenW = useWidth();
   const isDesktop = screenW >= 900;
@@ -1458,6 +1797,25 @@ export default function App() {
   const shelves = [];
   for (let i = 0; i < Math.max(minShelves, Math.ceil(fBooks.length / perShelf)); i++)
     shelves.push(fBooks.slice(i * perShelf, (i + 1) * perShelf));
+  const addDecoration = useCallback((item) => {
+    const uid = `deco-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const x = 15 + Math.random() * 70;
+    let y = 10 + Math.random() * 70;
+    const container = bookcaseRef.current;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const planks = container.querySelectorAll("[data-shelf-plank]");
+      if (planks.length > 0) {
+        const plank = planks[Math.floor(Math.random() * planks.length)];
+        const pr = plank.getBoundingClientRect();
+        const plankTop = pr.top - rect.top;
+        const snapCenter = plankTop - 40;
+        y = (snapCenter / rect.height) * 100;
+      }
+    }
+    setDecorations(prev => [...prev, { uid, id: item.id, emoji: item.emoji, label: item.label, x, y, scale: 1, z: 10 }]);
+  }, [setDecorations]);
+
   const openSearch = useCallback(() => {
     setAddYear(shelfYear === "all" ? currentYear : shelfYear);
     setShowSearch(true);
@@ -1483,9 +1841,11 @@ export default function App() {
       "--shelf-bg": T.bodyBg,
     }}>
       <style suppressHydrationWarning>{`body { background:${T.bodyBg}; }`}</style>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet"/>
+      <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet"/>
       <style suppressHydrationWarning>{`
         @keyframes spineUp { from { transform: translateY(20px) scaleY(.9); opacity:0; } to { transform: translateY(0) scaleY(1); opacity:1; } }
+.book-spine { transition: transform .25s cubic-bezier(.22,1,.36,1); }
+        .book-spine:hover { transform: translateY(-6px) scale(1.03); }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes dotPulse { 0%,100%{opacity:.2} 50%{opacity:.8} }
@@ -1509,15 +1869,15 @@ export default function App() {
               }}
               onKeyDown={e => { if (e.key === "Enter") e.target.blur(); if (e.key === "Escape") { setEditingName(false); } }}
               style={{
-                fontFamily:T.headingFont, fontSize:24, fontWeight:700,
-                color:T.accentText, letterSpacing:"-.3px", lineHeight:1.2,
+                fontFamily:T.headingFont, fontSize:42, fontWeight:400, fontStyle:"italic",
+                color:T.accentText, letterSpacing:"-.5px", lineHeight:1.1,
                 background:"none", border:"none", borderBottom:`2px solid ${T.accent}`,
-                outline:"none", padding:"0 0 2px", margin:0, width:"100%", maxWidth:300,
+                outline:"none", padding:"0 0 2px", margin:0, width:"100%", maxWidth:380,
               }}/>
           ) : (
             <h1 onClick={() => setEditingName(true)} title="Click to rename" style={{
-              fontFamily:T.headingFont, fontSize:24, fontWeight:700,
-              color:T.accentText, letterSpacing:"-.3px", lineHeight:1.2,
+              fontFamily:T.headingFont, fontSize:42, fontWeight:400, fontStyle:"italic",
+              color:T.accentText, letterSpacing:"-.5px", lineHeight:1.1,
               cursor:"pointer", borderBottom:"2px solid transparent",
               transition:"border-color .2s",
             }}
@@ -1525,7 +1885,7 @@ export default function App() {
             onMouseLeave={e => e.currentTarget.style.borderBottomColor = "transparent"}
             >{shelfName}</h1>
           )}
-          <p style={{ fontSize:12, color:T.textMuted, marginTop:3 }}>
+          <p style={{ fontSize:13, color:T.textMuted, marginTop:4, fontFamily:T.bodyFont, fontWeight:400, letterSpacing:".2px" }}>
             {yearBooks.length} book{yearBooks.length!==1?"s":""}{yearPgs > 0 ? ` · ${yearPgs.toLocaleString()} pages` : ""}
           </p>
         </div>
@@ -1547,6 +1907,19 @@ export default function App() {
             ))}
           </select>
         )}
+          {/* Decorate — opens catalog */}
+          {tab === "shelf" && (
+            <button onClick={() => setShowDecoCatalog(true)}
+              title="Add decoration"
+              style={{
+                width: 34, height: 34, borderRadius: 17,
+                background: "transparent",
+                border: `1px solid ${T.cardBorder || "transparent"}`,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all .2s", flexShrink: 0, fontSize: 16,
+              }}
+            >🪴</button>
+          )}
           {/* Profile avatar */}
           <button onClick={() => setShowProfile(true)} style={{
             width:34, height:34, borderRadius:17, border: isCloud ? `2px solid ${T.accent}` : "none", cursor:"pointer",
@@ -1595,21 +1968,29 @@ export default function App() {
       {/* Content area — scrolls, with bottom padding for nav bar */}
       <div style={{ flex:1, overflowY:"auto", padding:isDesktop?"16px 24px 100px":isTablet?"14px 16px 140px":"12px 12px 140px", background:T.bg }}>
         {tab==="shelf" && (
-          <Bookcase>
-            {shelves.map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
-              isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length}/>)}
-            {fBooks.length===0 && shelves.length === 0 && (
-              <div onClick={openSearch} style={{ textAlign:"center", padding:"44px 20px", cursor:"pointer" }}>
-                <div style={{ fontSize:40, marginBottom:10, opacity:.3 }}>+</div>
-                <p style={{ fontSize:13, color:T.textFaint }}>Tap to add your first book</p>
-              </div>
-            )}
-          </Bookcase>
+          <div ref={bookcaseRef} style={{ position: "relative" }}>
+            <Bookcase>
+              {shelves.map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
+                isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length}/>)}
+              {fBooks.length===0 && shelves.length === 0 && (
+                <div onClick={openSearch} style={{ textAlign:"center", padding:"44px 20px", cursor:"pointer" }}>
+                  <div style={{ fontSize:40, marginBottom:10, opacity:.3 }}>+</div>
+                  <p style={{ fontSize:13, color:T.textFaint }}>Tap to add your first book</p>
+                </div>
+              )}
+            </Bookcase>
+            {/* Decoration overlay — always interactive */}
+            <DecorationOverlay
+              decorations={decorations}
+              setDecorations={setDecorations}
+              containerRef={bookcaseRef}
+            />
+          </div>
         )}
 
         {tab==="list" && (
           <div style={{ padding:"4px 6px", display:isDesktop?"grid":"block", gridTemplateColumns:isDesktop?"1fr 1fr":"1fr", gap:isDesktop?"0 20px":"0" }}>
-            {fBooks.length===0 ? <p style={{ textAlign:"center", padding:40, color:T.textMuted, fontSize:14 }}>No books</p>
+            {fBooks.length===0 ? <div style={{ textAlign:"center", padding:"60px 20px", gridColumn:"1/-1" }}><div style={{ fontSize:36, marginBottom:12, opacity:.3 }}>📖</div><p style={{ color:T.textMuted, fontSize:14, fontFamily:T.bodyFont }}>No books yet</p><p style={{ color:T.textFaint, fontSize:12, marginTop:4 }}>Tap + to add your first book</p></div>
             : fBooks.map((book,i) => {
               if (!book.cover && !book.coverTried) fetchCover(book);
               const sc = STATUS[book.status]||STATUS.want;
@@ -1650,7 +2031,7 @@ export default function App() {
           background:T.fab, border:"none",
           cursor:"pointer", fontSize:28, color:T.fabText, fontWeight:300,
           display:"flex", alignItems:"center", justifyContent:"center",
-          boxShadow:"0 4px 12px rgba(0,0,0,.28), 0 1px 4px rgba(0,0,0,.18)",
+          
           zIndex:40, animation:"fabIn .25s cubic-bezier(.34,1.3,.64,1)",
           transition:"transform .15s, box-shadow .15s",
         }}
@@ -1670,7 +2051,7 @@ export default function App() {
         display:"flex", justifyContent:"space-around", alignItems:"center",
         padding:"4px 8px", height:56,
         zIndex:35,
-        boxShadow:"0 8px 32px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.08)",
+        
       }}>
         {[
           { id:"shelf", label:"Shelf", icon:"auto_stories" },
@@ -1719,7 +2100,7 @@ export default function App() {
             padding:isDesktop?"20px 24px":"16px 16px 0", flexShrink:0,
             ...(isDesktop ? { background:T.surface, borderRadius:T.sheetRadius, border:`1px solid ${T.cardBorder}`,
               maxWidth:520, width:"100%", marginTop:60, maxHeight:"calc(100vh - 120px)",
-              display:"flex", flexDirection:"column", boxShadow:"0 16px 48px rgba(0,0,0,.3)" } : {}),
+              display:"flex", flexDirection:"column",  } : {}),
           }}>
             <div style={{ display:"flex", gap:10, alignItems:"center" }}>
               <div style={{
@@ -1811,6 +2192,11 @@ export default function App() {
 
       {/* Profile menu */}
       {showProfile && <ProfileMenu theme={T} setThemeId={changeTheme} onClose={() => setShowProfile(false)} isDesktop={isDesktop} screenW={screenW} contentMax={contentMax} user={user} signIn={signIn} signOut={signOut} isCloud={isCloud}/>}
+
+      {/* Decoration catalog */}
+      {showDecoCatalog && (
+        <DecoCatalog onAdd={addDecoration} onClose={() => setShowDecoCatalog(false)} />
+      )}
     </div>
     </ThemeCtx.Provider>
     </ScaleCtx.Provider>
