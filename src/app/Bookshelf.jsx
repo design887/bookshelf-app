@@ -869,8 +869,64 @@ function BookSpine({ book, index, onClick }) {
 }
 
 
+/* ── Book Cover — front-facing cover view ── */
+function BookCover({ book, index, onClick }) {
+  const scale = useScale();
+  const T = useTheme();
+  const h = hash(book.title + (book.author || ""));
+  const color = SPINE_COLORS[h % SPINE_COLORS.length];
+  const [imgErr, setImgErr] = useState(false);
+  const coverH = Math.round(140 * scale);
+  const coverW = Math.round(coverH * .667);
+  const showCover = book.cover && !imgErr;
+
+  return (
+    <div style={{ flexShrink: 0, height: "100%", display: "flex", alignItems: "flex-end",
+      animation: `spineUp .4s cubic-bezier(.34,1.56,.64,1) ${index * .04}s both`,
+    }}>
+    <div className="book-spine" onClick={() => onClick(book)} style={{
+      width: coverW, height: coverH,
+      borderRadius: `${Math.round(4 * scale)}px`,
+      position: "relative", cursor: "pointer",
+      overflow: "hidden", background: color,
+    }}>
+      {showCover && (
+        <img src={book.cover} alt="" style={{
+          width: "100%", height: "100%", objectFit: "cover", display: "block",
+        }} onError={() => setImgErr(true)} />
+      )}
+      {!showCover && (
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          padding: Math.round(6 * scale), gap: Math.round(4 * scale),
+        }}>
+          <span style={{
+            fontSize: Math.min(11 * scale, coverW * .22),
+            fontFamily: T.bodyFont, fontWeight: 600,
+            color: "rgba(255,255,255,.85)",
+            textAlign: "center", lineHeight: 1.25,
+            overflow: "hidden", display: "-webkit-box",
+            WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
+          }}>{book.title}</span>
+          {book.author && <span style={{
+            fontSize: Math.min(8 * scale, coverW * .16),
+            fontFamily: T.bodyFont, fontWeight: 400,
+            color: "rgba(255,255,255,.55)",
+            textAlign: "center", lineHeight: 1.2,
+            overflow: "hidden", textOverflow: "ellipsis",
+            whiteSpace: "nowrap", maxWidth: "100%",
+          }}>{book.author}</span>}
+        </div>
+      )}
+    </div>
+    </div>
+  );
+}
+
 /* ── Shelf ── */
-function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves }) {
+function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves, viewMode }) {
   const T = useTheme();
   const scale = useScale();
   const shelfH = Math.round(155 * scale);
@@ -888,7 +944,10 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves })
         background: `${T.wood}0a`,
         borderRadius: radius,
       }} onClick={books.length === 0 ? onAdd : undefined}>
-        {(books||[]).map((b, i) => <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />)}
+        {(books||[]).map((b, i) => viewMode === "cover"
+          ? <BookCover key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />
+          : <BookSpine key={b.id} book={b} index={i + si * 8} onClick={onBookClick} />
+        )}
       </div>
       {!isLast && <div data-shelf-plank style={{ height: Math.round(14 * scale) }}/>}
       {isLast && <div data-shelf-plank style={{ height: 0 }}/>}
@@ -1670,6 +1729,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [showDecoCatalog, setShowDecoCatalog] = useState(false);
+  const [shelfView, setShelfView] = useState("spine"); // "spine" | "cover"
   const nameInputRef = useRef(null);
   const bookcaseRef = useRef(null);
   const T = THEMES[themeId] || THEMES.classic;
@@ -1793,7 +1853,9 @@ export default function App() {
   const addManual = useCallback(() => { if (query.trim()) addBook({ title:query.trim(), author:"", cover:null, year:null, pages:null }); }, [query, addBook]);
 
   const fBooks = filter === "all" ? yearBooks : yearBooks.filter(b => b.status === filter);
-  const perShelf = isDesktop ? 14 : isTablet ? 9 : 8;
+  const spinePerShelf = isDesktop ? 14 : isTablet ? 9 : 8;
+  const coverPerShelf = isDesktop ? 8 : isTablet ? 5 : 4;
+  const perShelf = shelfView === "cover" ? coverPerShelf : spinePerShelf;
   const minShelves = isDesktop ? 2 : 3;
   const shelves = [];
   for (let i = 0; i < Math.max(minShelves, Math.ceil(fBooks.length / perShelf)); i++)
@@ -1908,6 +1970,19 @@ export default function App() {
             ))}
           </select>
         )}
+          {/* View toggle — spine vs cover */}
+          {tab === "shelf" && (
+            <button onClick={() => setShelfView(v => v === "spine" ? "cover" : "spine")}
+              title={shelfView === "spine" ? "Show covers" : "Show spines"}
+              style={{
+                width: 34, height: 34, borderRadius: 17,
+                background: "transparent",
+                border: `1px solid ${T.cardBorder || "transparent"}`,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all .2s", flexShrink: 0, fontSize: 16,
+              }}
+            >{shelfView === "spine" ? "📖" : "📚"}</button>
+          )}
           {/* Decorate — opens catalog */}
           {tab === "shelf" && (
             <button onClick={() => setShowDecoCatalog(true)}
@@ -1971,8 +2046,8 @@ export default function App() {
         {tab==="shelf" && (
           <div ref={bookcaseRef} style={{ position: "relative" }}>
             <Bookcase>
-              {(shelves||[]).map((sb,i) => <Shelf key={i} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
-                isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length}/>)}
+              {(shelves||[]).map((sb,i) => <Shelf key={`${shelfView}-${i}`} books={sb} si={i} onBookClick={setSelected} onAdd={openSearch}
+                isFirst={i===0} isLast={i===shelves.length-1} totalShelves={shelves.length} viewMode={shelfView}/>)}
               {fBooks.length===0 && shelves.length === 0 && (
                 <div onClick={openSearch} style={{ textAlign:"center", padding:"44px 20px", cursor:"pointer" }}>
                   <div style={{ fontSize:40, marginBottom:10, opacity:.3 }}>+</div>
