@@ -941,7 +941,7 @@ function Shelf({ books, si, onBookClick, onAdd, isFirst, isLast, totalShelves, v
         display: "flex", alignItems: "flex-end", gap: Math.round((viewMode === "cover" ? 6 : 3) * scale),
         cursor: books.length === 0 ? "pointer" : "default",
         position: "relative",
-        background: `${T.wood}0a`,
+        background: `${T.wood}18`,
         borderRadius: radius,
         overflow: "hidden",
       }} onClick={books.length === 0 ? onAdd : undefined}>
@@ -972,7 +972,7 @@ function Bookcase({ children }) {
         <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)"
           rx={r} ry={r} fill="none"
           stroke={T.wood} strokeWidth="1" strokeDasharray="14 10"
-          strokeOpacity="0.45" strokeLinecap="round"/>
+          strokeOpacity="0.6" strokeLinecap="round"/>
       </svg>
       {children}
     </div>
@@ -1751,7 +1751,17 @@ export default function App() {
   const updateAddStatus = useCallback(v => { setAddStatus(v); try { localStorage.setItem("shelf-add-status", v); } catch {} }, []);
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState("shelf");
-  const [filter, setFilter] = useState("finished");
+  const [filter, setFilter] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("shelf-filter");
+      if (saved) return saved;
+    }
+    return "all";
+  });
+  const changeFilter = useCallback((v) => {
+    setFilter(v);
+    if (typeof window !== "undefined") localStorage.setItem("shelf-filter", v);
+  }, []);
   const [shelfYear, setShelfYear] = useState(new Date().getFullYear());
   const inpRef = useRef(null);
 
@@ -1956,7 +1966,7 @@ export default function App() {
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         {/* Filter dropdown */}
         {(tab==="shelf"||tab==="list") && (
-          <select value={filter} onChange={e => setFilter(e.target.value)} style={{
+          <select value={filter} onChange={e => changeFilter(e.target.value)} style={{
             background:T.inputBg, border:`1px solid ${T.inputBorder}`,
             borderRadius:T.inputRadius, padding:"7px 28px 7px 12px", color:T.accentText,
             fontSize:13, fontFamily:T.bodyFont, fontWeight:500,
